@@ -1,0 +1,59 @@
+name: tkpietro
+description: "tk-pietro per Android e iPhone: articoli, plugin, app e programmi di pietrodefilippis.it, software libero AGPL-3.0."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.6.0
+  shared_preferences: ^2.5.6
+  path_provider: ^2.1.6
+  url_launcher: ^6.3.3
+  package_info_plus: ^10.2.2
+  open_filex: ^4.7.0
+  share_plus: ^13.3.1
+  cached_network_image: ^4.0.5
+  flutter_widget_from_html_core: ^0.17.4
+  fwfh_cached_network_image: ^0.16.3
+  workmanager: ^0.10.10
+  flutter_local_notifications: ^22.3.3
+  flutter_cache_manager: ^3.4.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/licenze/COPYING-AGPL-3.0.txt
+    - assets/img/
+
+  # Fraunces (OFL), i titoli del sito pietrodefilippis.it
+  fonts:
+    - family: Fraunces
+      fonts:
+        - asset: assets/font/Fraunces-SemiBold.ttf
+          weight: 600
+        - asset: assets/font/Fraunces-ExtraBold.ttf
+          weight: 800
+
+# icone dell'app (generate da assets/icona.png con: dart run flutter_launcher_icons)
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icona.png
+  adaptive_icon_background: "#029BE0"
+  adaptive_icon_foreground: assets/icona-adattiva.png
+  remove_alpha_ios: true
