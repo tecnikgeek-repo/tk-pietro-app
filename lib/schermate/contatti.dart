@@ -193,7 +193,7 @@ class _SchedaContattiState extends State<SchedaContatti> {
             ),
           ),
         ),
-        SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.bottom + 100)),
+        SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16)),
       ],
     );
   }

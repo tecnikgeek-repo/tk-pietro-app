@@ -28,7 +28,7 @@ class SchedaInizio extends StatelessWidget {
     listenable: archivio,
     builder: (context, _) {
       final r = archivio.recenti;
-      final fondo = MediaQuery.of(context).padding.bottom + 96;
+      final fondo = MediaQuery.of(context).padding.bottom + 16;
       return RefreshIndicator(
         onRefresh: archivio.aggiorna,
         color: accento,

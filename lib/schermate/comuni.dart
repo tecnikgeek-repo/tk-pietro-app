@@ -291,7 +291,12 @@ class _Dettagli extends StatelessWidget {
     return Row(
       children: [
         Flexible(
-          child: Text(tempoFa(a.data), maxLines: 1, overflow: TextOverflow.ellipsis, style: s),
+          child: Text(
+            tempoFa(a.data, breve: !chiaro),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: s,
+          ),
         ),
         Text('  ·  ', style: s),
         Icon(Icons.schedule_rounded, size: 12.5, color: c),

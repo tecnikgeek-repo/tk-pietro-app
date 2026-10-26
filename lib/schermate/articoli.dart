@@ -215,16 +215,17 @@ class _SchedaArticoliState extends State<SchedaArticoli> {
             if (_finiti && _lista.length > 6)
               const SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 22),
+                  padding: EdgeInsets.fromLTRB(24, 22, 24, 0),
                   child: Center(
                     child: Text(
                       'Hai visto tutto. Ne arrivano di nuovi ogni pochi giorni.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(color: grigio500, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
               ),
-            SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.bottom + 100)),
+            SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16)),
           ],
         ),
       ),
