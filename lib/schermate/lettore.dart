@@ -9,6 +9,7 @@ import '../dati/archivio.dart';
 import '../dati/formati.dart';
 import '../dati/modelli.dart';
 import '../tema.dart';
+import 'ascolta.dart';
 import 'comuni.dart';
 
 class _Fabbrica extends WidgetFactory with CachedNetworkImageFactory {}
@@ -232,6 +233,10 @@ class _SchermataLettoreState extends State<SchermataLettore> {
                           width: 46,
                           decoration: BoxDecoration(color: sole, borderRadius: BorderRadius.circular(3)),
                         ),
+                        if (_a.contenuto != null) ...[
+                          const SizedBox(height: 18),
+                          Ascolta(key: ValueKey(_a.id), titolo: _a.titolo, html: _a.contenuto!, scuro: scuro),
+                        ],
                         const SizedBox(height: 6),
                       ],
                     ),

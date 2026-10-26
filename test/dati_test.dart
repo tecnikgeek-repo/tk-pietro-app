@@ -11,6 +11,7 @@ import 'package:tkpietro/dati/archivio.dart';
 import 'package:tkpietro/dati/formati.dart';
 import 'package:tkpietro/dati/modelli.dart';
 import 'package:tkpietro/dati/notifiche.dart';
+import 'package:tkpietro/schermate/ascolta.dart';
 import 'package:tkpietro/schermate/lettore.dart' show preparaHtml;
 
 String dato(String nome) => File('test/dati/$nome').readAsStringSync();
@@ -197,5 +198,15 @@ void main() {
       ),
       isEmpty,
     );
+  });
+
+  test('ascolta: testo pulito a pezzi sulle frasi', () {
+    final a = Articolo.daJson(jsonDecode(dato('articolo.json')) as Map<String, dynamic>);
+    final p = pezziDaLeggere(a.titolo, a.contenuto!);
+    expect(p.first, startsWith('35 milioni di euro'));
+    expect(p.every((x) => x.length <= 400 || !x.contains('. ')), isTrue);
+    expect(p.join(' '), isNot(contains('<')));
+    expect(p.join(' '), isNot(contains('&#')));
+    expect(p.join(' '), contains('l’AI Act'));
   });
 }

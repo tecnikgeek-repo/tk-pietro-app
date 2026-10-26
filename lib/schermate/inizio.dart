@@ -186,7 +186,7 @@ class _Testata extends StatelessWidget {
                   const Entrata(ritardo: 1, child: _Ritratto()),
                 ],
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 32),
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: Row(
@@ -207,6 +207,12 @@ class _Testata extends StatelessWidget {
 }
 
 /// Foto di Pietro in una cornice arrotondata, con alone che respira e un bollino.
+Widget _quadretto(double lato, Color colore) => Container(
+  width: lato,
+  height: lato,
+  decoration: BoxDecoration(color: colore, borderRadius: BorderRadius.circular(lato * .2)),
+);
+
 class _Ritratto extends StatefulWidget {
   const _Ritratto();
 
@@ -232,7 +238,7 @@ class _RitrattoState extends State<_Ritratto> with SingleTickerProviderStateMixi
         width: 118,
         height: 150,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
               color: accento.withValues(alpha: .25 + .25 * _c.value),
@@ -247,31 +253,58 @@ class _RitrattoState extends State<_Ritratto> with SingleTickerProviderStateMixi
     child: Stack(
       clipBehavior: Clip.none,
       children: [
+        // cornice scura come sul sito
         Positioned.fill(
           child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: bianco.withValues(alpha: .7), width: 2.5),
-            ),
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(color: inchiostro3, borderRadius: BorderRadius.circular(22)),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(26),
+              borderRadius: BorderRadius.circular(18),
               child: Image.asset('assets/img/pietro.jpg', fit: BoxFit.cover, alignment: const Alignment(0, -.55)),
             ),
           ),
         ),
+        // quadretti del logo in alto a destra
         Positioned(
-          right: -8,
-          bottom: 14,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-            decoration: BoxDecoration(
-              color: sole,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [BoxShadow(color: Color(0x400B1424), blurRadius: 10, offset: Offset(0, 4))],
+          top: -9,
+          right: -9,
+          child: SizedBox(
+            width: 30,
+            height: 30,
+            child: Stack(
+              children: [
+                Positioned(right: 0, top: 0, child: _quadretto(16, accento)),
+                Positioned(left: 0, top: 8, child: _quadretto(11, const Color(0xFF8CC6F7))),
+                Positioned(right: 2, bottom: 0, child: _quadretto(8, bianco)),
+              ],
             ),
-            child: const Text(
-              'NAPOLI',
-              style: TextStyle(color: inchiostro, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .8),
+          ),
+        ),
+        // targhetta «PDF · Webmaster · UX/UI · online dal 2017»
+        Positioned(
+          left: -10,
+          bottom: -16,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(9, 6, 10, 6),
+            decoration: BoxDecoration(
+              color: bianco,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [BoxShadow(color: Color(0x660B1424), blurRadius: 14, offset: Offset(0, 6))],
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'PDF',
+                  style: TextStyle(color: accento, fontSize: 8.5, fontWeight: FontWeight.w800, letterSpacing: 1),
+                ),
+                Text(
+                  'Webmaster · UX/UI',
+                  style: TextStyle(color: inchiostro, fontSize: 10.5, fontWeight: FontWeight.w800, height: 1.2),
+                ),
+                Text('online dal 2017', style: TextStyle(color: testoMuto, fontSize: 9, height: 1.2)),
+              ],
             ),
           ),
         ),
