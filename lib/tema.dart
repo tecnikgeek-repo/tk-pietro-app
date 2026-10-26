@@ -66,7 +66,7 @@ const configPietro = ConfigTk(
   accentoScuro: accentoScuro,
   simbolo: simboloPietro,
   logoOriginale: logoPietro,
-  avvioColorato: true,
+  avvioColorato: false,
   manifestUrl: 'https://dl.dropboxusercontent.com/scl/fi/fwpblmzfvuc3nnt12ihtm/pietro-version.json?rlkey=x1qcujw1p5oxva4v7z6vnp1us',
 );
 

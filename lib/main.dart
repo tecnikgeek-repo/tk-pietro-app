@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dati/api.dart';
 import 'dati/archivio.dart';
 import 'dati/notifiche.dart';
+import 'schermate/avvio.dart';
 import 'schermate/home.dart';
 import 'tema.dart';
 import 'tk_licenza.dart';
@@ -102,12 +103,12 @@ class AppPietro extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: ConAvvio(
+      home: ConAvvioPietro(
         child: FutureBuilder<void>(
           future: avvio,
           builder: (_, s) {
             if (s.hasError) return _ErroreAvvio('${s.error}');
-            if (s.connectionState != ConnectionState.done) return const SchermataAvvio();
+            if (s.connectionState != ConnectionState.done) return const AvvioPietro();
             return SchermataHome(crash: crashPrecedente);
           },
         ),

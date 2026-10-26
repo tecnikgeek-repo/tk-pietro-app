@@ -12,6 +12,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tkpietro/dati/api.dart';
 import 'package:tkpietro/dati/archivio.dart';
+import 'package:tkpietro/schermate/avvio.dart';
 import 'package:tkpietro/schermate/comuni.dart';
 import 'package:tkpietro/schermate/home.dart';
 import 'package:tkpietro/schermate/lettore.dart';
@@ -100,7 +101,7 @@ void main() {
 
     immaginiDiProva = (url) {
       final f = File('build/prova/img/${url.split('/').last}');
-      return f.existsSync() ? FileImage(f) : null;
+      return f.existsSync() ? FileImage(f) : const AssetImage('assets/img/pietro.jpg');
     };
   });
 
@@ -165,6 +166,6 @@ void main() {
       'informazioni',
       prima: () => t.pump(const Duration(seconds: 1)),
     );
-    await _scatta(t, const SchermataAvvio(), 'avvio');
+    await _scatta(t, const AvvioPietro(), 'avvio');
   });
 }
