@@ -11,4 +11,9 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <!-- li dichiarano le librerie delle notifiche (WorkManager, flutter_local_notifications), ma l'app non usa servizi
+         in primo piano: fa solo il controllo periodico degli articoli. Su Play un servizio in primo piano va dichiarato
+         con un video, quindi nella versione Play si tolgono. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:node="remove" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SHORT_SERVICE" tools:node="remove" />
 </manifest>

@@ -28,7 +28,7 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2, fissata al commit (ha accesso alla chiave di firma)
         with:
-          flutter-version: '3.47.5'
+          flutter-version: '3.47.8'
           channel: stable
           cache: true
       - run: flutter pub get
@@ -57,6 +57,7 @@ jobs:
           echo "Permesso di installare APK assente"
           if grep -qE 'READ_MEDIA_(IMAGES|VIDEO|AUDIO)|READ_EXTERNAL_STORAGE' manifest.pb; then echo "::error::Permessi su foto e video ancora nel pacchetto (Play li vuole solo per le gallerie)"; exit 1; fi
           echo "Permessi su foto, video e audio assenti"
+          if grep -q FOREGROUND_SERVICE manifest.pb; then echo "::error::Permessi dei servizi in primo piano ancora nel pacchetto"; exit 1; fi
           python3 tools/controlla_16kb.py "$AAB"
           VERSIONE=$(grep -m1 '^version:' pubspec.yaml | sed 's/version: //' | tr -d ' \r')
           mkdir -p dist && cp "$AAB" "dist/tk-pietro-${VERSIONE%%+*}-play.aab"
