@@ -10,6 +10,9 @@ import '../dati/modelli.dart';
 import '../tema.dart';
 import 'comuni.dart';
 
+/// Categoria da mostrare quando si apre la scheda (es. un argomento toccato in Inizio); la scheda la consuma.
+final categoriaRichiesta = ValueNotifier<int?>(null);
+
 class SchedaArticoli extends StatefulWidget {
   const SchedaArticoli({super.key});
 
@@ -35,11 +38,24 @@ class _SchedaArticoliState extends State<SchedaArticoli> {
     _scorri.addListener(() {
       if (_scorri.position.extentAfter < 600) _altri();
     });
+    categoriaRichiesta.addListener(_richiesta);
+    _categoria = categoriaRichiesta.value;
+    categoriaRichiesta.value = null;
+    _ricomincia();
+  }
+
+  void _richiesta() {
+    final c = categoriaRichiesta.value;
+    if (c == null) return;
+    categoriaRichiesta.value = null;
+    _cerca.clear();
+    _categoria = c;
     _ricomincia();
   }
 
   @override
   void dispose() {
+    categoriaRichiesta.removeListener(_richiesta);
     _attesa?.cancel();
     _cerca.dispose();
     _scorri.dispose();

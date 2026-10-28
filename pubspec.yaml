@@ -2,7 +2,7 @@ name: tkpietro
 description: "tk-pietro per Android e iPhone: articoli, plugin, app e programmi di pietrodefilippis.it, software libero AGPL-3.0."
 publish_to: 'none'
 
-version: 1.0.5+6
+version: 1.0.6+7
 
 environment:
   sdk: ^3.13.4

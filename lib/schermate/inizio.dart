@@ -1,5 +1,6 @@
-// Scheda «Inizio»: chi sono, numeri del sito che contano da soli, ultimo articolo, carosello «da leggere»,
-// assaggio della vetrina, invito alle notifiche, caffè e social.
+// Scheda «Inizio»: chi sono, numeri del sito che contano da soli, app su Google Play, ultimo articolo, carosello
+// «da leggere», i tre argomenti del blog, assaggio della vetrina, di mestiere, invito alle notifiche, caffè e social.
+// Stesse sezioni della home del sito (pd-home.php).
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import '../dati/formati.dart';
 import '../dati/modelli.dart';
 import '../dati/notifiche.dart';
 import '../tema.dart';
+import 'articoli.dart';
 import 'comuni.dart';
 import 'home.dart';
 import 'scheda.dart';
@@ -45,6 +47,8 @@ class SchedaInizio extends StatelessWidget {
                 ),
               ),
             if (!archivio.invitoNotificheFatto) const SliverToBoxAdapter(child: _InvitoNotifiche()),
+            if (archivio.catalogo != null && archivio.catalogo!.gruppo('app').any((s) => s.play.isNotEmpty))
+              SliverToBoxAdapter(child: _Store(archivio.catalogo!.gruppo('app'))),
             if (r.isEmpty && archivio.aggiornando)
               const SliverToBoxAdapter(
                 child: Padding(
@@ -71,6 +75,10 @@ class SchedaInizio extends StatelessWidget {
               _titolo('Da leggere'),
               SliverToBoxAdapter(child: _Carosello(r.skip(1).take(6).toList())),
             ],
+            if (archivio.catalogo?.argomenti.isNotEmpty ?? false) ...[
+              _titolo('Di cosa scrivo', azione: 'Tutti', onTap: () => schedaAttiva.value = schedaArticoli),
+              SliverToBoxAdapter(child: _Argomenti(archivio.catalogo!.argomenti)),
+            ],
             if (archivio.catalogo != null) ...[
               _titolo('Le mie app', azione: 'Vetrina', onTap: () => schedaAttiva.value = schedaVetrina),
               SliverToBoxAdapter(child: _StrisciaApp(archivio.catalogo!)),
@@ -86,6 +94,7 @@ class SchedaInizio extends StatelessWidget {
                 ),
               ),
             ],
+            const SliverToBoxAdapter(child: _Mestiere()),
             const SliverToBoxAdapter(child: _Sostieni()),
             const SliverToBoxAdapter(child: _Social()),
             SliverToBoxAdapter(child: SizedBox(height: fondo)),
@@ -569,6 +578,545 @@ class _StrisciaApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Etichetta «// minuscolo» coi quadretti del logo, come sul sito.
+class _Etichetta extends StatelessWidget {
+  const _Etichetta(this.testo);
+
+  final String testo;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      _quadretto(6, accento),
+      const SizedBox(width: 2),
+      _quadretto(6, accento),
+      const SizedBox(width: 2),
+      Transform.translate(offset: const Offset(0, -3), child: _quadretto(6, const Color(0xFF8CC6F7))),
+      const SizedBox(width: 8),
+      Text(
+        testo,
+        style: const TextStyle(color: Color(0xFF8CC6F7), fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: .3),
+      ),
+    ],
+  );
+}
+
+/// Pagina sviluppatore su Google Play: tutte le app pubblicate.
+const paginaPlay = 'https://play.google.com/store/apps/dev?id=7693415642899552584';
+
+/// Logo di Google Play in quattro spicchi (disegnato qui, come sul sito).
+class _LogoPlay extends StatelessWidget {
+  const _LogoPlay();
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(size: const Size.square(26), painter: _PittorePlay());
+}
+
+class _PittorePlay extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size s) {
+    final k = s.width / 24;
+    void spicchio(List<Offset> p, Color c) =>
+        canvas.drawPath(Path()..addPolygon([for (final o in p) o * k], true), Paint()..color = c);
+    const centro = Offset(12.3, 12);
+    spicchio(const [Offset(3.4, 2.4), Offset(3.4, 21.6), centro], accento);
+    spicchio(const [Offset(3.4, 2.4), Offset(15.4, 8.9), centro], const Color(0xFF22C55E));
+    spicchio(const [Offset(3.4, 21.6), Offset(15.4, 15.1), centro], const Color(0xFFEF4444));
+    spicchio(const [Offset(15.4, 8.9), Offset(20.6, 12), Offset(15.4, 15.1), centro], sole);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// «Le mie app sono su Google Play» (come la scena «store» del sito): tessere delle app, verdi quelle già su Play.
+class _Store extends StatelessWidget {
+  const _Store(this.app);
+
+  final List<Programma> app;
+
+  @override
+  Widget build(BuildContext context) {
+    final su = app.where((s) => s.play.isNotEmpty).length;
+    return Entrata(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 22, 16, 0),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(26),
+          color: inchiostro,
+          boxShadow: const [BoxShadow(color: Color(0x400B1424), blurRadius: 24, offset: Offset(0, 10))],
+        ),
+        child: Stack(
+          children: [
+            // aloni verde e blu come sul sito
+            Positioned(right: -80, top: -90, child: _alone(260, const Color(0xFF22C55E))),
+            Positioned(left: -90, bottom: -110, child: _alone(280, accento)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _Etichetta('novità · app ufficiali'),
+                  const SizedBox(height: 8),
+                  Text('Le mie app sono', style: stileTitolo(27, colore: bianco, altezza: 1.1)),
+                  ShaderMask(
+                    shaderCallback: (r) =>
+                        const LinearGradient(colors: [Color(0xFF4ADE80), Color(0xFF8CC6F7), sole]).createShader(r),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        'su Google Play.',
+                        style: stileTitolo(27, colore: bianco, altezza: 1.15).copyWith(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Controllate da Google, si installano con un tocco e si aggiornano da sole. '
+                    'E presto arrivano anche su iPhone, dall\'App Store.',
+                    style: TextStyle(color: grigio300, fontSize: 13.5, height: 1.45, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 18),
+                  GridView.count(
+                    crossAxisCount: 3,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: .92,
+                    padding: EdgeInsets.zero,
+                    children: [
+                      for (final (i, s) in [
+                        ...app.where((s) => s.play.isNotEmpty),
+                        ...app.where((s) => s.play.isEmpty),
+                      ].indexed)
+                        Entrata(ritardo: i, child: _TesseraStore(s)),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _Bollo(
+                          logo: const _LogoPlay(),
+                          sopra: 'Disponibili su',
+                          nome: 'Google Play',
+                          onTap: () => apriLink(context, paginaPlay),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: _Bollo(
+                          logo: Icon(Icons.apple, color: bianco, size: 28),
+                          sopra: 'Prossimamente su',
+                          nome: 'App Store',
+                          presto: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    '$su app già su Google Play · ${app.length - su} in arrivo · tutte gratis, senza pubblicità',
+                    style: const TextStyle(color: grigio300, fontSize: 12, height: 1.4, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _alone(double lato, Color c) => Container(
+    width: lato,
+    height: lato,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: RadialGradient(colors: [c.withValues(alpha: .35), c.withValues(alpha: 0)]),
+    ),
+  );
+}
+
+class _TesseraStore extends StatelessWidget {
+  const _TesseraStore(this.s);
+
+  final Programma s;
+
+  @override
+  Widget build(BuildContext context) {
+    final su = s.play.isNotEmpty;
+    return Premibile(
+      onTap: () => su ? apriLink(context, s.play) : apriSchedaProgramma(context, s),
+      child: Column(
+        children: [
+          Container(
+            width: 58,
+            height: 58,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: su ? bianco : bianco.withValues(alpha: .1),
+              borderRadius: BorderRadius.circular(17),
+              border: Border.all(
+                color: su ? const Color(0xFF22C55E) : bianco.withValues(alpha: .14),
+                width: su ? 2.5 : 1,
+              ),
+              boxShadow: su ? const [BoxShadow(color: Color(0x8022C55E), blurRadius: 16, offset: Offset(0, 6))] : null,
+            ),
+            child: Opacity(
+              opacity: su ? 1 : .7,
+              child: Text(s.emoji, style: const TextStyle(fontSize: 27)),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            s.nome,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: bianco, fontSize: 11.5, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (su) ...[const PuntinoVivo(lato: 5), const SizedBox(width: 4)],
+              Flexible(
+                child: Text(
+                  su ? 'su Google Play' : 'in arrivo',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: su ? const Color(0xFF86EFAC) : grigio400,
+                    fontSize: 9.5,
+                    fontWeight: su ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Bottone nero «Disponibili su Google Play» / «Prossimamente su App Store» (spento, col bollino PRESTO).
+class _Bollo extends StatelessWidget {
+  const _Bollo({required this.logo, required this.sopra, required this.nome, this.onTap, this.presto = false});
+
+  final Widget logo;
+  final String sopra, nome;
+  final VoidCallback? onTap;
+  final bool presto;
+
+  @override
+  Widget build(BuildContext context) {
+    final bollo = Container(
+      height: 54,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(
+          color: presto ? bianco.withValues(alpha: .16) : const Color(0xFF4ADE80),
+          width: presto ? 1 : 1.4,
+        ),
+      ),
+      child: Row(
+        children: [
+          logo,
+          const SizedBox(width: 9),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    sopra,
+                    style: const TextStyle(color: grigio300, fontSize: 10, fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    nome,
+                    style: const TextStyle(color: bianco, fontSize: 18, fontWeight: FontWeight.w800, height: 1.1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (!presto) return Premibile(onTap: onTap ?? () {}, child: bollo);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Opacity(opacity: .6, child: bollo),
+        Positioned(
+          top: -9,
+          right: -4,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+            decoration: BoxDecoration(color: sole, borderRadius: BorderRadius.circular(7)),
+            child: const Text(
+              'PRESTO',
+              style: TextStyle(color: inchiostro, fontSize: 9.5, fontWeight: FontWeight.w900, letterSpacing: .8),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// I tre argomenti del blog, con la foto dell'ultimo articolo: toccandoli si aprono gli articoli di quella categoria.
+class _Argomenti extends StatelessWidget {
+  const _Argomenti(this.argomenti);
+
+  final List<Argomento> argomenti;
+
+  static const _icone = {
+    'autismo': Icons.extension_rounded,
+    'tecnologia': Icons.memory_rounded,
+    'politica': Icons.location_city_rounded,
+  };
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Column(
+      children: [
+        for (final (i, a) in argomenti.indexed)
+          Padding(
+            padding: EdgeInsets.only(top: i == 0 ? 0 : 12),
+            child: Entrata(
+              ritardo: i,
+              child: Premibile(
+                onTap: () {
+                  categoriaRichiesta.value = a.categoria;
+                  schedaAttiva.value = schedaArticoli;
+                },
+                child: Container(
+                  height: i == 0 ? 230 : 196,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    color: inchiostro2,
+                    boxShadow: const [BoxShadow(color: Color(0x330B1424), blurRadius: 18, offset: Offset(0, 8))],
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (a.ultimaImmagine.isNotEmpty) ImmagineRete(a.ultimaImmagine),
+                      // scuro dal basso: il testo resta sempre leggibile
+                      const DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0x660B1424), Color(0xF20B1424)],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(color: accento, borderRadius: BorderRadius.circular(12)),
+                                  child: Icon(_icone[a.chiave] ?? Icons.article_rounded, color: bianco, size: 21),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: bianco.withValues(alpha: .16),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '${a.totale} articoli',
+                                    style: const TextStyle(color: bianco, fontSize: 12, fontWeight: FontWeight.w800),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Text(a.titolo, style: stileTitolo(23, colore: bianco)),
+                            const SizedBox(height: 4),
+                            Text(
+                              a.descrizione,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: grigio300, fontSize: 12.5, height: 1.35),
+                            ),
+                            if (a.ultimoTitolo.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: 'L\'ultimo · ',
+                                      style: TextStyle(color: sole, fontWeight: FontWeight.w800),
+                                    ),
+                                    TextSpan(text: a.ultimoTitolo),
+                                  ],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: bianco, fontSize: 12.5, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+/// «Di mestiere» (come sul sito): i quattro servizi e il tasto per scrivermi.
+class _Mestiere extends StatelessWidget {
+  const _Mestiere();
+
+  static const _servizi = [
+    (Icons.code_rounded, 'Webmaster', 'Siti professionali, plugin su misura, temi e prestazioni.'),
+    (Icons.brush_rounded, 'Web e UX/UI design', 'Grafica ed esperienza visiva, foto e video.'),
+    (Icons.smartphone_rounded, 'App Android e iOS', 'App per telefono e programmi per Windows e Mac.'),
+    (Icons.storefront_rounded, 'eCommerce', 'Negozi online e vendita sui marketplace.'),
+  ];
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 30, 16, 0),
+    child: Entrata(
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(26), color: inchiostro),
+        child: FondoGriglia(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _Etichetta('di mestiere'),
+                const SizedBox(height: 8),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      const TextSpan(text: 'Faccio siti, app e '),
+                      TextSpan(
+                        text: 'negozi online',
+                        style: stileTitolo(26, colore: const Color(0xFF8CC6F7)).copyWith(fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
+                  style: stileTitolo(26, colore: bianco, altezza: 1.1),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Il web è da sempre la mia più grande passione e oggi è il mio lavoro a tempo pieno.',
+                  style: TextStyle(color: grigio300, fontSize: 13.5, height: 1.45, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 16),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: .98,
+                  padding: EdgeInsets.zero,
+                  children: [
+                    for (final (i, s) in _servizi.indexed)
+                      Entrata(
+                        ritardo: i,
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: bianco.withValues(alpha: .06),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: bianco.withValues(alpha: .1)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(colors: [accento, accentoScuro]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(s.$1, color: bianco, size: 20),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                s.$2,
+                                style: const TextStyle(
+                                  color: bianco,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.15,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Expanded(
+                                child: Text(
+                                  s.$3,
+                                  overflow: TextOverflow.fade,
+                                  style: const TextStyle(color: grigio300, fontSize: 12, height: 1.35),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Premibile(
+                  onTap: () => schedaAttiva.value = schedaScrivimi,
+                  child: Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(color: sole, borderRadius: BorderRadius.circular(14)),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Scrivimi',
+                          style: TextStyle(color: inchiostro, fontWeight: FontWeight.w900, fontSize: 15.5),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.send_rounded, color: inchiostro, size: 19),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /// Card gialla del caffè.

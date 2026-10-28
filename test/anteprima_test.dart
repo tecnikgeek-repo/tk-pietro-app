@@ -116,6 +116,19 @@ void main() {
       schedaAttiva.value = i;
       await _scatta(t, const SchermataHome(), nome);
     }
+    // Inizio più in basso: app su Google Play, argomenti, di mestiere
+    for (final giu in [700, 1500, 2300, 3100, 3900]) {
+      schedaAttiva.value = 0;
+      await _scatta(
+        t,
+        const SchermataHome(),
+        'inizio-$giu',
+        prima: () async {
+          await t.drag(find.byType(CustomScrollView).first, Offset(0, -giu.toDouble()));
+          await t.pump(const Duration(milliseconds: 600));
+        },
+      );
+    }
     await t.runAsync(() => archivio.salva(archivio.recenti[1]));
     await t.runAsync(() => archivio.salva(archivio.recenti[3]));
     schedaAttiva.value = 3;

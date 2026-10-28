@@ -195,9 +195,14 @@ class Programma {
     this.installazioni = 0,
     this.codice = '',
     this.scarica = const {},
+    this.play = '',
+    this.ios = '',
   });
 
   final String slug, nome, gruppo, emoji, corta, cosa, versione, codice;
+
+  /// Link di Google Play (vuoto finché l'app non è pubblicata lì) e dell'App Store.
+  final String play, ios;
   final List<String> punti, piattaforme;
   final int installazioni;
 
@@ -222,7 +227,38 @@ class Programma {
     installazioni: _i(j['installazioni']),
     codice: _s(j['codice']),
     scarica: (j['scarica'] is Map) ? (j['scarica'] as Map).map((k, v) => MapEntry('$k', '$v')) : const {},
+    play: _s(j['play']),
+    ios: _s(j['ios']),
   );
+}
+
+/// Uno dei tre argomenti del blog (come nella home del sito): quanti articoli e l'ultimo uscito.
+class Argomento {
+  const Argomento({
+    required this.chiave,
+    required this.titolo,
+    this.descrizione = '',
+    this.categoria = 0,
+    this.totale = 0,
+    this.ultimoTitolo = '',
+    this.ultimaImmagine = '',
+  });
+
+  final String chiave, titolo, descrizione, ultimoTitolo, ultimaImmagine;
+  final int categoria, totale;
+
+  factory Argomento.daJson(Map<String, dynamic> j) {
+    final u = (j['ultimo'] is Map) ? (j['ultimo'] as Map).cast<String, dynamic>() : const <String, dynamic>{};
+    return Argomento(
+      chiave: _s(j['chiave']),
+      titolo: _s(j['titolo']),
+      descrizione: _s(j['descrizione']),
+      categoria: _i(j['categoria']),
+      totale: _i(j['totale']),
+      ultimoTitolo: _s(u['titolo']),
+      ultimaImmagine: _s(u['immagine']),
+    );
+  }
 }
 
 class Catalogo {
@@ -233,10 +269,12 @@ class Catalogo {
     this.dona = 'https://pietrodefilippis.it/donazione/',
     this.numeri = const {},
     this.aggiornato,
+    this.argomenti = const [],
   });
 
   final List<Plugin> plugin, temi;
   final List<Programma> software;
+  final List<Argomento> argomenti;
   final String dona;
   final Map<String, int> numeri;
   final DateTime? aggiornato;
@@ -254,5 +292,6 @@ class Catalogo {
     dona: _s(j['dona']).isEmpty ? 'https://pietrodefilippis.it/donazione/' : _s(j['dona']),
     numeri: (j['numeri'] as Map? ?? const {}).map((k, v) => MapEntry('$k', _i(v))),
     aggiornato: j['aggiornato'] == null ? null : DateTime.fromMillisecondsSinceEpoch(_i(j['aggiornato']) * 1000),
+    argomenti: [for (final a in (j['argomenti'] as List? ?? const [])) Argomento.daJson((a as Map).cast())],
   );
 }
