@@ -69,8 +69,12 @@ Niente registrazioni, niente servizi esterni, niente pubblicità.
 <table align="center">
 <tr>
 <td align="center" valign="top"><img src="docs/schermata-1.png" width="200" alt="Inizio"><br><sub><b>Inizio</b></sub></td>
-<td align="center" valign="top"><img src="docs/schermata-2.png" width="200" alt="Vetrina"><br><sub><b>Vetrina</b></sub></td>
-<td align="center" valign="top"><img src="docs/schermata-3.png" width="200" alt="Scheda plugin"><br><sub><b>Scheda plugin</b></sub></td>
+<td align="center" valign="top"><img src="docs/schermata-2.png" width="200" alt="Articoli"><br><sub><b>Articoli</b></sub></td>
+<td align="center" valign="top"><img src="docs/schermata-3.png" width="200" alt="Lettore"><br><sub><b>Lettore</b></sub></td>
+</tr>
+<tr>
+<td align="center" valign="top"><img src="docs/schermata-4.png" width="200" alt="Vetrina"><br><sub><b>Vetrina</b></sub></td>
+<td align="center" valign="top"><img src="docs/schermata-5.png" width="200" alt="Scheda plugin"><br><sub><b>Scheda plugin</b></sub></td>
 </tr>
 </table>
 
