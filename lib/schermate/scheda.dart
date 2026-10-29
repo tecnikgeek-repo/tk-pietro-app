@@ -571,6 +571,15 @@ class _SchedaProgramma extends StatelessWidget {
               label: const Text('Hai un Mac con processore Intel? Scarica questa versione'),
             ),
           ),
+        if (d['linux'] != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: TextButton.icon(
+              onPressed: () => apriLink(context, d['linux']!),
+              icon: const Icon(Icons.terminal_rounded, size: 18),
+              label: const Text('Usi Linux? Scarica la versione per Linux'),
+            ),
+          ),
         if (s.codice.isNotEmpty) ...[
           _sezione('Software libero'),
           _paragrafo(

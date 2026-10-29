@@ -206,7 +206,7 @@ class Programma {
   final List<String> punti, piattaforme;
   final int installazioni;
 
-  /// windows, mac, macIntel, android, link → indirizzo del sito che porta sempre all'ultima versione.
+  /// windows, mac, macIntel, linux, android, link → indirizzo del sito che porta sempre all'ultima versione.
   final Map<String, String> scarica;
 
   /// Piattaforme già disponibili e quelle in arrivo («iPhone · prossimamente»).

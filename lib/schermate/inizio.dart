@@ -998,7 +998,7 @@ class _Mestiere extends StatelessWidget {
   static const _servizi = [
     (Icons.code_rounded, 'Webmaster', 'Siti professionali, plugin su misura, temi e prestazioni.'),
     (Icons.brush_rounded, 'Web e UX/UI design', 'Grafica ed esperienza visiva, foto e video.'),
-    (Icons.smartphone_rounded, 'App Android e iOS', 'App per telefono e programmi per Windows e Mac.'),
+    (Icons.smartphone_rounded, 'App Android e iOS', 'App per telefono e programmi per Windows, Mac e Linux.'),
     (Icons.storefront_rounded, 'eCommerce', 'Negozi online e vendita sui marketplace.'),
   ];
 
