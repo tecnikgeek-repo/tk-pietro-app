@@ -112,7 +112,14 @@ void main() {
     t.view.devicePixelRatio = 2;
     addTearDown(t.view.reset);
 
-    for (final (i, nome) in [(0, 'inizio'), (1, 'articoli'), (2, 'vetrina'), (3, 'salvati-vuoto'), (4, 'scrivimi')]) {
+    for (final (i, nome) in [
+      (0, 'inizio'),
+      (1, 'articoli'),
+      (2, 'ai'),
+      (3, 'vetrina'),
+      (4, 'salvati-vuoto'),
+      (5, 'scrivimi'),
+    ]) {
       schedaAttiva.value = i;
       await _scatta(t, const SchermataHome(), nome);
     }
@@ -131,8 +138,21 @@ void main() {
     }
     await t.runAsync(() => archivio.salva(archivio.recenti[1]));
     await t.runAsync(() => archivio.salva(archivio.recenti[3]));
-    schedaAttiva.value = 3;
+    schedaAttiva.value = 4;
     await _scatta(t, const SchermataHome(), 'salvati');
+    // chat tk-ai: una domanda suggerita e la risposta (sito finto) con le fonti
+    schedaAttiva.value = 2;
+    await _scatta(
+      t,
+      const SchermataHome(),
+      'ai-risposta',
+      prima: () async {
+        await t.tap(find.text('Che plugin hai per WordPress?'));
+        await t.pump(const Duration(milliseconds: 300));
+        await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
+        await t.pump(const Duration(seconds: 2));
+      },
+    );
 
     await _scatta(t, SchermataLettore(articolo: archivio.recenti.first), 'lettore');
     await _scatta(

@@ -295,3 +295,46 @@ class Catalogo {
     argomenti: [for (final a in (j['argomenti'] as List? ?? const [])) Argomento.daJson((a as Map).cast())],
   );
 }
+
+// ───────────────────────── tk-ai ─────────────────────────
+
+/// Una pagina del sito usata da tk-ai per rispondere (le schede «Dove l'ho letto»).
+class FonteAi {
+  const FonteAi({required this.titolo, required this.url, this.tipo = '', this.immagine = '', this.estratto = ''});
+
+  final String titolo, url, tipo, immagine, estratto;
+
+  factory FonteAi.daJson(Map<String, dynamic> j) => FonteAi(
+    titolo: '${j['titolo'] ?? ''}',
+    url: '${j['url'] ?? ''}',
+    tipo: '${j['tipo'] ?? ''}',
+    immagine: '${j['immagine'] ?? ''}',
+    estratto: '${j['estratto'] ?? ''}',
+  );
+}
+
+/// Risposta della chat: [ok] falso = risposta di cortesia (motore spento, limite…), con la pagina [contatti].
+class RispostaAi {
+  const RispostaAi({
+    required this.ok,
+    required this.testo,
+    this.fonti = const [],
+    this.contatti = '',
+    this.trascrizione = '',
+  });
+
+  final bool ok;
+  final String testo, contatti, trascrizione;
+  final List<FonteAi> fonti;
+
+  factory RispostaAi.daJson(Map<String, dynamic> j) => RispostaAi(
+    ok: j['ok'] == true,
+    testo: '${j['risposta'] ?? ''}',
+    contatti: '${j['contatti'] ?? ''}',
+    trascrizione: '${j['trascrizione'] ?? ''}',
+    fonti: [
+      for (final f in (j['fonti'] is List ? j['fonti'] as List : const []))
+        if (f is Map && f['url'] != null) FonteAi.daJson(f.cast()),
+    ],
+  );
+}

@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- vocali per la chat tk-ai (chiesto solo quando si tocca il microfono) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- avvisi di articoli nuovi e novità in vetrina (Android 13+ chiede il permesso) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- aggiornamento automatico: scarica e installa il nuovo APK -->

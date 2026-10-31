@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Per fotografare una cosa e chiederla a tk-ai.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Per scegliere una foto da chiedere a tk-ai.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Per mandare un messaggio vocale a tk-ai.</string>
 </dict>
 </plist>

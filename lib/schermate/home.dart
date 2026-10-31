@@ -1,4 +1,4 @@
-// Guscio dell'app: cinque schede con la barra in basso fluttuante. All'avvio: benvenuto (una volta), aggiornamento
+// Guscio dell'app: sei schede (al centro «AI», la chat con tk-ai) con la barra in basso fluttuante. All'avvio: benvenuto (una volta), aggiornamento
 // dei dati, notifica che ha aperto l'app, controllo degli aggiornamenti dell'app.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +7,7 @@ import '../dati/archivio.dart';
 import '../dati/notifiche.dart';
 import '../tema.dart';
 import '../tk_pro.dart';
+import 'ai.dart';
 import 'articoli.dart';
 import 'comuni.dart';
 import 'contatti.dart';
@@ -17,7 +18,7 @@ import 'vetrina.dart';
 /// Scheda aperta: si può cambiare da qualunque schermata (es. «Contattami» dalla vetrina).
 final schedaAttiva = ValueNotifier<int>(0);
 
-const schedaInizio = 0, schedaArticoli = 1, schedaVetrina = 2, schedaSalvati = 3, schedaScrivimi = 4;
+const schedaInizio = 0, schedaArticoli = 1, schedaAi = 2, schedaVetrina = 3, schedaSalvati = 4, schedaScrivimi = 5;
 
 class SchermataHome extends StatefulWidget {
   const SchermataHome({super.key, this.crash});
@@ -116,6 +117,7 @@ class _SchermataHomeState extends State<SchermataHome> {
             children: [
               const SchedaInizio(),
               if (_aperte.contains(schedaArticoli)) const SchedaArticoli() else const SizedBox(),
+              if (_aperte.contains(schedaAi)) const SchedaAi() else const SizedBox(),
               if (_aperte.contains(schedaVetrina)) const SchedaVetrina() else const SizedBox(),
               if (_aperte.contains(schedaSalvati)) const SchedaSalvati() else const SizedBox(),
               if (_aperte.contains(schedaScrivimi)) const SchedaContatti() else const SizedBox(),
@@ -131,6 +133,7 @@ class _SchermataHomeState extends State<SchermataHome> {
 const _voci = [
   (Icons.home_rounded, Icons.home_outlined, 'Inizio'),
   (Icons.article_rounded, Icons.article_outlined, 'Articoli'),
+  (Icons.forum_rounded, Icons.forum_outlined, 'AI'),
   (Icons.auto_awesome_rounded, Icons.auto_awesome_outlined, 'Vetrina'),
   (Icons.bookmark_rounded, Icons.bookmark_border_rounded, 'Salvati'),
   (Icons.mail_rounded, Icons.mail_outline_rounded, 'Scrivimi'),

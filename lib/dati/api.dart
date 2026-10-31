@@ -88,6 +88,47 @@ class Api {
     } catch (_) {}
   }
 
+  // ───────────────────────── tk-ai: la chat con l'intelligenza artificiale del sito ─────────────────────────
+
+  String? _nonceAi;
+
+  /// Nonce della chat (lo stesso che il sito dà alle sue pagine), chiesto una volta e rinnovato se scade.
+  Future<String> _nonce({bool nuovo = false}) async {
+    if (_nonceAi != null && !nuovo) return _nonceAi!;
+    final j = await _leggi('/wp-json/tk-ai/v1/nonce');
+    _nonceAi = (j as Map)['nonce'] as String? ?? '';
+    return _nonceAi!;
+  }
+
+  /// Una domanda a tk-ai: [messaggi] sono gli ultimi della conversazione ({ruolo: utente|ai, testo}); [foto] è un
+  /// JPEG e [vocale] un WAV 16 kHz, in base64. Il sito cerca nelle sue pagine e chiede al motore tk-ai.
+  Future<RispostaAi> chiediAi(List<Map<String, String>> messaggi, {String? foto, String? vocale}) async {
+    final corpo = jsonEncode({'messaggi': messaggi, 'foto': ?foto, 'vocale': ?vocale});
+    Future<http.Response> manda(String nonce) => _c
+        .post(
+          Uri.parse('$sito/wp-json/tk-ai/v1/chat'),
+          headers: {..._intestazioni, 'Content-Type': 'application/json', 'X-WP-Nonce': nonce},
+          body: corpo,
+        )
+        .timeout(const Duration(seconds: 200));
+    http.Response r;
+    try {
+      r = await manda(await _nonce());
+      if (r.statusCode == 403) r = await manda(await _nonce(nuovo: true)); // nonce scaduto: se ne chiede uno nuovo
+    } on ErroreSito {
+      rethrow;
+    } catch (_) {
+      throw const ErroreSito('Non riesco a raggiungere il sito: controlla la connessione.');
+    }
+    Map<String, dynamic> j;
+    try {
+      j = (jsonDecode(utf8.decode(r.bodyBytes)) as Map).cast<String, dynamic>();
+    } catch (_) {
+      throw ErroreSito('Il sito ha risposto ${r.statusCode}: riprova tra poco.');
+    }
+    return RispostaAi.daJson(j);
+  }
+
   /// Manda un messaggio dal modulo Contatti: finisce nei «Messaggi» del sito e arriva per email.
   Future<void> inviaMessaggio({
     required String nome,

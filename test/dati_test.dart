@@ -42,6 +42,37 @@ MockClient sitoFinto({String? articoli, String? catalogo, void Function(http.Req
     }
     return http.Response('{"ok":true}', 200, headers: h);
   }
+  if (p.endsWith('/tk-ai/v1/nonce')) return http.Response('{"nonce":"abc123"}', 200, headers: h);
+  if (p.endsWith('/tk-ai/v1/chat')) {
+    if (r.headers['X-WP-Nonce'] != 'abc123') return http.Response('{"code":"tk_ai_nonce"}', 403, headers: h);
+    return http.Response.bytes(
+      utf8.encode(
+        jsonEncode({
+          'ok': true,
+          'risposta':
+              'Ho fatto diversi plugin per WordPress, quasi tutti **Free** con un Pro facoltativo:\n\n'
+              '- **tk-seo** per la SEO del sito\n- **tk-forms** per i moduli di contatto\n- **tk-recensioni** per le recensioni\n\n'
+              'Li trovi tutti nella pagina **Plugin** — pietrodefilippis.it/plugin',
+          'fonti': [
+            {
+              'titolo': 'Plugin WordPress',
+              'url': 'https://pietrodefilippis.it/plugin/',
+              'tipo': 'Pagina',
+              'estratto': 'Tutti i plugin TK: gratis, con il Pro per chi vuole di più.',
+            },
+            {
+              'titolo': 'tk-seo',
+              'url': 'https://pietrodefilippis.it/plugin/tk-seo/',
+              'tipo': 'Pagina',
+              'estratto': 'La SEO del sito senza plugin di terzi.',
+            },
+          ],
+        }),
+      ),
+      200,
+      headers: h,
+    );
+  }
   return http.Response('{}', 200, headers: h);
 });
 
