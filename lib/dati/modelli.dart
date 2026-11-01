@@ -321,17 +321,14 @@ class RispostaAi {
     this.fonti = const [],
     this.contatti = '',
     this.trascrizione = '',
-    this.coriandoli = false,
   });
 
   final bool ok;
-  final bool coriandoli; // sul sito, a «dove mi trovo?»
   final String testo, contatti, trascrizione;
   final List<FonteAi> fonti;
 
   factory RispostaAi.daJson(Map<String, dynamic> j) => RispostaAi(
     ok: j['ok'] == true,
-    coriandoli: j['coriandoli'] == true,
     testo: '${j['risposta'] ?? ''}',
     contatti: '${j['contatti'] ?? ''}',
     trascrizione: '${j['trascrizione'] ?? ''}',

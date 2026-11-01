@@ -297,22 +297,12 @@ class _SchedaAiState extends State<SchedaAi> {
       }
       _occupato = false;
     });
-    if (r.coriandoli) _festa();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final c = (turno.intanto.isNotEmpty ? turno.chiaveRisposta : turno.chiave).currentContext;
       if (c != null) {
         Scrollable.ensureVisible(c, duration: const Duration(milliseconds: 450), curve: Curves.easeOutCubic);
       }
     });
-  }
-
-  void _festa() {
-    if (MediaQuery.of(context).disableAnimations) return;
-    late final OverlayEntry voce;
-    voce = OverlayEntry(
-      builder: (_) => IgnorePointer(child: _Coriandoli(fine: () => voce.remove())),
-    );
-    Overlay.of(context).insert(voce);
   }
 
   void _nuova() {
@@ -1574,78 +1564,4 @@ class _VoceFoglio extends StatelessWidget {
       style: const TextStyle(color: bianco, fontWeight: FontWeight.w700),
     ),
   );
-}
-
-/// I coriandoli che esplodono sopra la chat, poi si tolgono da soli.
-class _Coriandoli extends StatefulWidget {
-  const _Coriandoli({required this.fine});
-
-  final VoidCallback fine;
-
-  @override
-  State<_Coriandoli> createState() => _CoriandoliState();
-}
-
-class _CoriandoliState extends State<_Coriandoli> with SingleTickerProviderStateMixin {
-  late final _t = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
-  final _pezzi = List.generate(130, (i) {
-    final a = _caso.nextDouble() * 2 * math.pi;
-    final v = 180 + _caso.nextDouble() * 520;
-    return (
-      vx: math.cos(a) * v,
-      vy: math.sin(a) * v - 260,
-      giro: _caso.nextDouble() * 6,
-      vg: (_caso.nextDouble() - .5) * 14,
-      w: 5 + _caso.nextDouble() * 6,
-      h: 3 + _caso.nextDouble() * 5,
-      c: const [Color(0xFF7C3AED), Color(0xFF22B8C9), Color(0xFFEC4899), Color(0xFFF59E0B), Colors.white][i % 5],
-    );
-  });
-
-  @override
-  void initState() {
-    super.initState();
-    _t.forward().whenComplete(widget.fine);
-  }
-
-  @override
-  void dispose() {
-    _t.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-    animation: _t,
-    builder: (_, _) => CustomPaint(
-      size: Size.infinite,
-      painter: _PittoreCoriandoli(_pezzi, _t.value),
-    ),
-  );
-}
-
-class _PittoreCoriandoli extends CustomPainter {
-  _PittoreCoriandoli(this.pezzi, this.t);
-
-  final List<({double vx, double vy, double giro, double vg, double w, double h, Color c})> pezzi;
-  final double t;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final s = t * 2.6;
-    final trasparenza = t > .7 ? (1 - t) / .3 : 1.0;
-    for (final p in pezzi) {
-      canvas.save();
-      canvas.translate(size.width / 2 + p.vx * s * .75, size.height * .55 + p.vy * s + 420 * s * s);
-      canvas.rotate(p.giro + p.vg * s);
-      canvas.drawRect(
-        Rect.fromCenter(center: Offset.zero, width: p.w, height: p.h),
-        Paint()..color = p.c.withValues(alpha: trasparenza),
-      );
-      canvas.restore();
-    }
-  }
-
-  @override
-  bool shouldRepaint(_PittoreCoriandoli vecchio) => vecchio.t != t;
 }
