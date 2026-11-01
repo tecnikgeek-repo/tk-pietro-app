@@ -26,13 +26,43 @@ const _suggerite = [
   'Di cosa parla il blog?',
   'Fai anche siti per i negozi?',
 ];
-const _passi = [
-  'Capisco la domanda',
-  'Cerco nelle pagine del sito',
-  'Leggo quello che ho trovato',
-  'Scrivo la risposta',
+const _pensando = [
+  'Sto pensando',
+  'Cerco per te',
+  'Sto guardando',
+  'Ci sono',
+  'Un momento',
+  'Mi informo',
+  'Sto verificando',
+  'Lo sto cercando',
+  'Faccio un controllo',
+  'Sto mettendo insieme tutto',
+  'Vediamo un po\'',
+  'Sto ragionando',
+  'Ci sto pensando',
+  'Do un\'occhiata',
+  'Raccolgo le informazioni',
+  'Sto scrivendo',
+  'Un secondo soltanto',
+  'Metto in ordine le idee',
+  'Sto trovando le parole',
+  'Ancora un istante',
+  'Arrivo subito',
+  'Ci penso un attimo',
+  'Un attimo',
+  'Fammi controllare',
+  'Sto cercando',
+  'Sto leggendo',
+  'Cerco la risposta',
+  'Controllo un attimo',
+  'Preparo la risposta',
+  'Verifico subito',
+  'Ci guardo subito',
+  'Dammi un secondo',
+  'Sto controllando',
+  'Guardo meglio',
+  'Ci sto lavorando',
 ];
-const _passiFoto = ['Guardo la foto', 'Leggo nome e scritte', 'Cerco nelle pagine del sito', 'Scrivo la risposta'];
 const _quasi = [
   'Ci sono quasi, ancora qualche secondo…',
   'Ci sto mettendo un po\', ma ci arrivo…',
@@ -427,41 +457,17 @@ class _SchedaAiState extends State<SchedaAi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  const Text(
-                    'tk-ai',
-                    style: TextStyle(color: bianco, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -.2),
-                  ),
-                  if (_versione.isNotEmpty) ...[
-                    const SizedBox(width: 7),
-                    Flexible(
-                      child: Text(
-                        'Versione $_versione',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 11.5),
-                      ),
-                    ),
-                  ],
-                ],
+              const Text(
+                'tk-ai',
+                style: TextStyle(color: bianco, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -.2),
               ),
-              Row(
-                children: [
-                  const PuntinoVivo(),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      'La mia intelligenza artificiale',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 12.5),
-                    ),
-                  ),
-                ],
-              ),
+              if (_versione.isNotEmpty)
+                Text(
+                  'Versione $_versione',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 11.5),
+                ),
             ],
           ),
         ),
@@ -694,13 +700,10 @@ class _VistaTurno extends StatelessWidget {
               Entrata(child: _NuvolaAi(child: _Articolo(testo: t))),
               const SizedBox(height: 10),
             ],
-            _NuvolaAi(
-              child: r != null
-                  ? _Risposta(risposta: r, titoloFonti: turno.titoloFonti)
-                  : turno.scritto.isNotEmpty
-                  ? _Articolo(testo: '${_soloTesto(turno.scritto)} ▍')
-                  : _Attesa(foto: turno.foto != null),
-            ),
+            if (r != null)
+              _Risposta(risposta: r, titoloFonti: turno.titoloFonti)
+            else
+              _NuvolaAi(child: turno.scritto.isNotEmpty ? _Articolo(testo: '${_soloTesto(turno.scritto)} ▍') : const _Attesa()),
           ],
         ),
       ),
@@ -715,20 +718,26 @@ class _NuvolaAi extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(15),
-    decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: .06),
-      border: Border.all(color: Colors.white.withValues(alpha: .1)),
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(6),
-        topRight: Radius.circular(20),
-        bottomLeft: Radius.circular(20),
-        bottomRight: Radius.circular(20),
+  Widget build(BuildContext context) => Row(
+    children: [
+      Flexible(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: .1),
+            border: Border.all(color: Colors.white.withValues(alpha: .12)),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+              bottomLeft: Radius.circular(6),
+              bottomRight: Radius.circular(18),
+            ),
+          ),
+          child: child,
+        ),
       ),
-    ),
-    child: child,
+      const SizedBox(width: 24),
+    ],
   );
 }
 
@@ -744,7 +753,7 @@ class _Risposta extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _Articolo(testo: r.testo),
+        _NuvolaAi(child: _Articolo(testo: r.testo)),
         if (r.fonti.isNotEmpty) ...[
           const SizedBox(height: 20),
           Text(
@@ -1005,116 +1014,62 @@ class _Fonte extends StatelessWidget {
 // ───────────────────────── attesa: passi che si accendono e righe che luccicano ─────────────────────────
 
 class _Attesa extends StatefulWidget {
-  const _Attesa({required this.foto});
-
-  final bool foto;
+  const _Attesa();
 
   @override
   State<_Attesa> createState() => _AttesaState();
 }
 
 class _AttesaState extends State<_Attesa> with SingleTickerProviderStateMixin {
-  late final _luce = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600))..repeat();
-  final _timer = <Timer>[];
-  int _ora = 0;
-  bool _lento = false;
-  final _fraseLenta = _unaDi(_quasi);
+  late final _puntini = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
+  String _frase = _unaDi(_pensando);
+  Timer? _lento;
 
   @override
   void initState() {
     super.initState();
-    for (final (k, s) in [(1, 2.2), (2, 6.0), (3, 14.0)]) {
-      _timer.add(Timer(Duration(milliseconds: (s * 1000).round()), () => mounted ? setState(() => _ora = k) : null));
-    }
-    _timer.add(Timer(const Duration(seconds: 45), () => mounted ? setState(() => _lento = true) : null));
+    _lento = Timer(const Duration(seconds: 45), () {
+      if (mounted) setState(() => _frase = _unaDi(_quasi));
+    });
   }
 
   @override
   void dispose() {
-    for (final t in _timer) {
-      t.cancel();
-    }
-    _luce.dispose();
+    _lento?.cancel();
+    _puntini.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    final nomi = widget.foto ? _passiFoto : _passi;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < nomi.length; i++)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: i < _ora
-                      ? Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(colors: [accento, _turchese]),
-                          ),
-                          child: const Icon(Icons.check_rounded, size: 13, color: bianco),
-                        )
-                      : i == _ora
-                      ? const CircularProgressIndicator(strokeWidth: 2.2, color: _turchese)
-                      : DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: bianco.withValues(alpha: .2), width: 2),
-                          ),
-                        ),
-                ),
-                const SizedBox(width: 10),
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 400),
-                  style: TextStyle(
-                    color: i == _ora ? bianco : (i < _ora ? _tenue : bianco.withValues(alpha: .35)),
-                    fontSize: 14.5,
-                  ),
-                  child: Text(nomi[i]),
-                ),
-              ],
-            ),
-          ),
-        const SizedBox(height: 8),
-        AnimatedBuilder(
-          animation: _luce,
-          builder: (_, _) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final w in const [1.0, .86, .6])
-                FractionallySizedBox(
-                  widthFactor: w,
-                  child: Container(
-                    height: 13,
-                    margin: const EdgeInsets.only(bottom: 9),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(7),
-                      gradient: LinearGradient(
-                        begin: Alignment(-3 + _luce.value * 5, 0),
-                        end: Alignment(-1 + _luce.value * 5, 0),
-                        colors: [
-                          bianco.withValues(alpha: .06),
-                          accento.withValues(alpha: .45),
-                          _turchese.withValues(alpha: .4),
-                          bianco.withValues(alpha: .06),
-                        ],
-                      ),
-                    ),
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Flexible(
+        child: Text(_frase, style: TextStyle(color: Colors.white.withValues(alpha: .75), fontSize: 15, height: 1.3)),
+      ),
+      const SizedBox(width: 8),
+      AnimatedBuilder(
+        animation: _puntini,
+        builder: (_, _) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < 3; i++)
+              Container(
+                width: 6,
+                height: 6,
+                margin: const EdgeInsets.only(right: 4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(
+                    alpha: .3 + .6 * (.5 + .5 * math.sin((_puntini.value - i * .17) * 2 * math.pi)),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
-        if (_lento) Text(_fraseLenta, style: TextStyle(color: _tenue, fontSize: 13.5)),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
 
 // ───────────────────────── pezzi ─────────────────────────
