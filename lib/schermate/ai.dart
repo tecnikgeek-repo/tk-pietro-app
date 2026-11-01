@@ -73,6 +73,16 @@ class _SchedaAiState extends State<SchedaAi> {
   Timer? _timerVoce;
   StreamSubscription<Amplitude>? _ampiezza;
   final _onde = ValueNotifier<List<double>>(List.filled(24, .15));
+  String _versione = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // la versione del motore che risponde: la dà il sito, così cambia da sola senza aggiornare l'app
+    archivio.api.chiediVersioneAi().then((v) {
+      if (mounted && v.isNotEmpty) setState(() => _versione = v);
+    });
+  }
 
   @override
   void dispose() {
@@ -305,9 +315,19 @@ class _SchedaAiState extends State<SchedaAi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'tk-ai',
-                style: TextStyle(color: bianco, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -.2),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  const Text(
+                    'tk-ai',
+                    style: TextStyle(color: bianco, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -.2),
+                  ),
+                  if (_versione.isNotEmpty) ...[
+                    const SizedBox(width: 7),
+                    Text('v.$_versione', style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 11.5)),
+                  ],
+                ],
               ),
               Row(
                 children: [

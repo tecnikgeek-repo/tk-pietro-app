@@ -92,12 +92,24 @@ class Api {
 
   String? _nonceAi;
 
+  /// Versione del motore che risponde, come la dà il sito insieme al nonce (vuota finché non si sa).
+  String versioneAi = '';
+
   /// Nonce della chat (lo stesso che il sito dà alle sue pagine), chiesto una volta e rinnovato se scade.
   Future<String> _nonce({bool nuovo = false}) async {
     if (_nonceAi != null && !nuovo) return _nonceAi!;
     final j = await _leggi('/wp-json/tk-ai/v1/nonce');
     _nonceAi = (j as Map)['nonce'] as String? ?? '';
+    versioneAi = j['versione'] as String? ?? '';
     return _nonceAi!;
+  }
+
+  /// La versione del motore per la testata della chat: se il sito non risponde, niente numero e nessun errore.
+  Future<String> chiediVersioneAi() async {
+    try {
+      await _nonce();
+    } catch (_) {}
+    return versioneAi;
   }
 
   /// Una domanda a tk-ai: [messaggi] sono gli ultimi della conversazione ({ruolo: utente|ai, testo}); [foto] è un
