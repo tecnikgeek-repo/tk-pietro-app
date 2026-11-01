@@ -325,7 +325,14 @@ class _SchedaAiState extends State<SchedaAi> {
                   ),
                   if (_versione.isNotEmpty) ...[
                     const SizedBox(width: 7),
-                    Text('v.$_versione', style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 11.5)),
+                    Flexible(
+                      child: Text(
+                        'v.$_versione',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 11.5),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -333,9 +340,13 @@ class _SchedaAiState extends State<SchedaAi> {
                 children: [
                   const PuntinoVivo(),
                   const SizedBox(width: 6),
-                  Text(
-                    'La mia intelligenza artificiale',
-                    style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 12.5),
+                  Flexible(
+                    child: Text(
+                      'La mia intelligenza artificiale',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 12.5),
+                    ),
                   ),
                 ],
               ),
