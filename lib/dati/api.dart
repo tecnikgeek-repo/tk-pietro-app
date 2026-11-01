@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../schermate/aspetto_ai.dart';
 import 'modelli.dart';
 
 const sito = 'https://pietrodefilippis.it';
@@ -107,6 +108,7 @@ class Api {
     versioneAi = j['versione'] as String? ?? '';
     if (j['suggerite'] is List) suggeriteAi = [for (final x in j['suggerite'] as List) '$x'];
     if (j['viste'] is int) visteAi = j['viste'] as int;
+    if (j['aspetto'] is Map) aspettoAi.value = AspettoAi.daJson(j['aspetto'] as Map);
     return _nonceAi!;
   }
 

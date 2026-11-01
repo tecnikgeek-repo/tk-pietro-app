@@ -2,12 +2,13 @@
 description: "tk-pietro per Android e iPhone: articoli, plugin, app e programmi di pietrodefilippis.it, software libero AGPL-3.0."
 publish_to: 'none'
 
-version: 1.0.14+15
+version: 1.0.15+16
 
 environment:
   sdk: ^3.13.4
 
 dependencies:
+  flutter_svg: ^2.0.17
   flutter:
     sdk: flutter
   flutter_localizations:
