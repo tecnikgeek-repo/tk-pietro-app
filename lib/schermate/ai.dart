@@ -439,7 +439,7 @@ class _SchedaAiState extends State<SchedaAi> {
                     const SizedBox(width: 7),
                     Flexible(
                       child: Text(
-                        'v.$_versione',
+                        'Versione $_versione',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: _tenue.withValues(alpha: .95), fontSize: 11.5),
