@@ -134,6 +134,7 @@ class _Turno {
   String scritto = ''; // le parole man mano, finché non arriva la risposta definitiva
   final intanto = <String>[]; // i messaggi mentre aspetta: dopo 5 secondi, poi 10, poi 5…
   final titoloFonti = _unaDi(_titoliFonti);
+  final chiaveRisposta = GlobalKey(); // con i messaggi d'attesa il turno è lungo: si va alla risposta
   final chiave = GlobalKey(); // per portare la risposta in vista dall'inizio del turno
 }
 
@@ -294,7 +295,7 @@ class _SchedaAiState extends State<SchedaAi> {
       _occupato = false;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final c = turno.chiave.currentContext;
+      final c = (turno.intanto.isNotEmpty ? turno.chiaveRisposta : turno.chiave).currentContext;
       if (c != null) {
         Scrollable.ensureVisible(c, duration: const Duration(milliseconds: 450), curve: Curves.easeOutCubic);
       }
@@ -701,7 +702,7 @@ class _VistaTurno extends StatelessWidget {
               const SizedBox(height: 10),
             ],
             if (r != null)
-              _Risposta(risposta: r, titoloFonti: turno.titoloFonti)
+              KeyedSubtree(key: turno.chiaveRisposta, child: _Risposta(risposta: r, titoloFonti: turno.titoloFonti))
             else
               _NuvolaAi(child: turno.scritto.isNotEmpty ? _Articolo(testo: '${_soloTesto(turno.scritto)} ▍') : const _Attesa()),
           ],
