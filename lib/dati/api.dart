@@ -95,12 +95,18 @@ class Api {
   /// Versione del motore che risponde, come la dà il sito insieme al nonce (vuota finché non si sa).
   String versioneAi = '';
 
+  /// Le domande suggerite: le dà il sito insieme al nonce, e quante mostrarne.
+  List<String> suggeriteAi = const [];
+  int visteAi = 5;
+
   /// Nonce della chat (lo stesso che il sito dà alle sue pagine), chiesto una volta e rinnovato se scade.
   Future<String> _nonce({bool nuovo = false}) async {
     if (_nonceAi != null && !nuovo) return _nonceAi!;
     final j = await _leggi('/wp-json/tk-ai/v1/nonce');
     _nonceAi = (j as Map)['nonce'] as String? ?? '';
     versioneAi = j['versione'] as String? ?? '';
+    if (j['suggerite'] is List) suggeriteAi = [for (final x in j['suggerite'] as List) '$x'];
+    if (j['viste'] is int) visteAi = j['viste'] as int;
     return _nonceAi!;
   }
 
@@ -114,31 +120,69 @@ class Api {
 
   /// Una domanda a tk-ai: [messaggi] sono gli ultimi della conversazione ({ruolo: utente|ai, testo}); [foto] è un
   /// JPEG e [vocale] un WAV 16 kHz, in base64. Il sito cerca nelle sue pagine e chiede al motore tk-ai.
-  Future<RispostaAi> chiediAi(List<Map<String, String>> messaggi, {String? foto, String? vocale}) async {
-    final corpo = jsonEncode({'messaggi': messaggi, 'foto': ?foto, 'vocale': ?vocale});
-    Future<http.Response> manda(String nonce) => _c
-        .post(
-          Uri.parse('$sito/wp-json/tk-ai/v1/chat'),
-          headers: {..._intestazioni, 'Content-Type': 'application/json', 'X-WP-Nonce': nonce},
-          body: corpo,
+  /// [suPezzo] riceve le parole man mano (null = si ricomincia: il PC si è fermato e risponde il box), [suIntanto] i
+  /// messaggi da mostrare se tarda. Se il sito risponde tutto insieme funziona lo stesso, solo senza parole man mano.
+  Future<RispostaAi> chiediAi(
+    List<Map<String, String>> messaggi, {
+    String? foto,
+    String? vocale,
+    void Function(String?)? suPezzo,
+    void Function(List<String>)? suIntanto,
+  }) async {
+    final corpo = jsonEncode({'messaggi': messaggi, 'foto': ?foto, 'vocale': ?vocale, 'flusso': true});
+    Future<http.StreamedResponse> manda(String nonce) => _c
+        .send(
+          http.Request('POST', Uri.parse('$sito/wp-json/tk-ai/v1/chat'))
+            ..headers.addAll({..._intestazioni, 'Content-Type': 'application/json', 'X-WP-Nonce': nonce})
+            ..body = corpo,
         )
         .timeout(const Duration(seconds: 200));
-    http.Response r;
+    const persa = ErroreSito('Non riesco a raggiungere il sito: controlla la connessione.');
+    http.StreamedResponse r;
     try {
       r = await manda(await _nonce());
-      if (r.statusCode == 403) r = await manda(await _nonce(nuovo: true)); // nonce scaduto: se ne chiede uno nuovo
+      if (r.statusCode == 403) {
+        await r.stream.drain<void>();
+        r = await manda(await _nonce(nuovo: true)); // nonce scaduto: se ne chiede uno nuovo
+      }
     } on ErroreSito {
       rethrow;
     } catch (_) {
-      throw const ErroreSito('Non riesco a raggiungere il sito: controlla la connessione.');
+      throw persa;
     }
-    Map<String, dynamic> j;
+    if ((r.headers['content-type'] ?? '').contains('ndjson')) {
+      Map? finale;
+      try {
+        final righe = r.stream
+            .transform(utf8.decoder)
+            .transform(const LineSplitter())
+            .timeout(const Duration(seconds: 200));
+        await for (final riga in righe) {
+          if (riga.isEmpty) continue;
+          final d = jsonDecode(riga);
+          if (d is! Map) continue;
+          if (d['pezzo'] is String) {
+            suPezzo?.call(d['pezzo'] as String);
+          } else if (d['azzera'] == true) {
+            suPezzo?.call(null);
+          } else if (d['intanto'] is List) {
+            suIntanto?.call([for (final x in d['intanto'] as List) '$x']);
+          } else if (d['fine'] == true && d['dati'] is Map) {
+            finale = d['dati'] as Map;
+          }
+        }
+      } catch (_) {
+        throw persa;
+      }
+      if (finale == null) throw persa;
+      return RispostaAi.daJson(finale.cast<String, dynamic>());
+    }
     try {
-      j = (jsonDecode(utf8.decode(r.bodyBytes)) as Map).cast<String, dynamic>();
+      final tutta = await http.Response.fromStream(r);
+      return RispostaAi.daJson((jsonDecode(utf8.decode(tutta.bodyBytes)) as Map).cast<String, dynamic>());
     } catch (_) {
       throw ErroreSito('Il sito ha risposto ${r.statusCode}: riprova tra poco.');
     }
-    return RispostaAi.daJson(j);
   }
 
   /// Manda un messaggio dal modulo Contatti: finisce nei «Messaggi» del sito e arriva per email.

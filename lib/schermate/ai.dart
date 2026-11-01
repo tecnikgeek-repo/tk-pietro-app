@@ -1,6 +1,6 @@
 // Scheda «AI»: la chat con tk-ai, l'intelligenza artificiale di Pietro, come la modalità AI del sito (notte,
 // griglia e aloni). La domanda diventa un titolo, la risposta un piccolo articolo con i link, sotto le pagine del
-// sito usate («Dove l'ho letto»). Si può mandare una foto o un vocale di 30 secondi. Risponde il sito
+// sito usate («Per saperne di più»). Si può mandare una foto o un vocale di 30 secondi. Risponde il sito
 // (REST tk-ai/v1/chat), che cerca nelle sue pagine e chiede al motore tk-ai.
 import 'dart:async';
 import 'dart:convert';
@@ -33,6 +33,62 @@ const _passi = [
   'Scrivo la risposta',
 ];
 const _passiFoto = ['Guardo la foto', 'Leggo nome e scritte', 'Cerco nelle pagine del sito', 'Scrivo la risposta'];
+const _quasi = [
+  'Ci sono quasi, ancora qualche secondo…',
+  'Ci sto mettendo un po\', ma ci arrivo…',
+  'È una ricerca lunga, abbi pazienza…',
+  'Non mi sono dimenticato di te…',
+  'Sto ancora cercando il meglio per te…',
+  'Un altro po\' e ti rispondo…',
+  'Sto controllando ancora una cosa…',
+  'Grazie per la pazienza, quasi ci siamo…',
+  'Ancora poco e finisco…',
+  'Sto dando gli ultimi ritocchi…',
+  'Eccomi quasi, resta con me…',
+  'Quasi fatto, un altro momento…',
+  'Manca poco, resta qui…',
+  'Sto finendo, ancora un attimo…',
+  'Ancora qualche secondo e ci siamo…',
+];
+const _titoliFonti = [
+  'Per saperne di più',
+  'Forse ti interessa',
+  'Guarda anche',
+  'Qualcosa in più',
+  'Da vedere',
+  'Vai più a fondo',
+  'Trovi tutto qui',
+  'Ecco dove guardare',
+  'Ne parliamo anche qui',
+  'Vuoi leggere di più?',
+  'Altri dettagli',
+  'Può tornarti utile',
+  'Se ti incuriosisce',
+  'Dai uno sguardo',
+  'Tutti i dettagli',
+  'Puoi vedere anche',
+  'Ti lascio questi',
+  'Un passo in più',
+  'Da qui puoi continuare',
+  'Le pagine giuste',
+  'Per chi vuole di più',
+  'Vuoi più info?',
+  'Approfondisci qui',
+  'Leggi anche',
+  'Vuoi approfondire?',
+  'Da leggere',
+  'Ti può interessare',
+  'Qui trovi di più',
+  'Per approfondire',
+  'Scopri di più',
+  'Continua a leggere',
+  'Altre informazioni',
+  'Se vuoi saperne di più',
+  'Dai un\'occhiata',
+  'Può esserti utile',
+];
+final _caso = math.Random();
+String _unaDi(List<String> v) => v[_caso.nextInt(v.length)];
 const _turchese = Color(0xFF22B8C9);
 const _tenue = Color(0xFFA9B4CC);
 const _maxStoria = 10;
@@ -45,6 +101,9 @@ class _Turno {
   final List<int>? foto;
   final bool vocale;
   RispostaAi? risposta;
+  String scritto = ''; // le parole man mano, finché non arriva la risposta definitiva
+  final intanto = <String>[]; // i messaggi mentre aspetta: dopo 5 secondi, poi 10, poi 5…
+  final titoloFonti = _unaDi(_titoliFonti);
   final chiave = GlobalKey(); // per portare la risposta in vista dall'inizio del turno
 }
 
@@ -74,13 +133,23 @@ class _SchedaAiState extends State<SchedaAi> {
   StreamSubscription<Amplitude>? _ampiezza;
   final _onde = ValueNotifier<List<double>>(List.filled(24, .15));
   String _versione = '';
+  List<String>? _idee; // le domande suggerite di questa apertura
+
+  void _scegliIdee() {
+    final tutte = [...archivio.api.suggeriteAi]..shuffle();
+    _idee = tutte.isEmpty ? _suggerite : tutte.take(archivio.api.visteAi).toList();
+  }
 
   @override
   void initState() {
     super.initState();
     // la versione del motore che risponde: la dà il sito, così cambia da sola senza aggiornare l'app
     archivio.api.chiediVersioneAi().then((v) {
-      if (mounted && v.isNotEmpty) setState(() => _versione = v);
+      if (!mounted) return;
+      setState(() {
+        _versione = v;
+        _scegliIdee();
+      });
     });
   }
 
@@ -126,18 +195,60 @@ class _SchedaAiState extends State<SchedaAi> {
     });
     if (vocaleB64 == null) _storia.add({'ruolo': 'utente', 'testo': turno.domanda});
     _inFondo();
+    Timer? disegno;
+    void suPezzo(String? t) {
+      final prima = turno.scritto.isEmpty;
+      turno.scritto = t == null ? '' : turno.scritto + t;
+      if (!mounted || disegno != null) return;
+      disegno = Timer(const Duration(milliseconds: 60), () {
+        disegno = null;
+        if (!mounted || turno.risposta != null) return;
+        // se si sta guardando il fondo, il testo resta in vista mentre si scrive
+        final segui = _scorri.hasClients && _scorri.position.maxScrollExtent - _scorri.offset < 160;
+        setState(() {});
+        if (prima) {
+          _inFondo();
+        } else if (segui) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_scorri.hasClients) _scorri.jumpTo(_scorri.position.maxScrollExtent);
+          });
+        }
+      });
+    }
+
+    // la chat non resta muta: dopo 5 secondi, poi altri 10, poi 5… finché arriva la prima parola
+    Timer? catena;
+    final partito = DateTime.now();
+    void suIntanto(List<String> testi) {
+      void prossimo(int i, int dopo) {
+        if (i >= testi.length) return;
+        catena = Timer(Duration(seconds: dopo), () {
+          if (!mounted || turno.risposta != null || turno.scritto.isNotEmpty) return;
+          setState(() => turno.intanto.add(testi[i]));
+          _inFondo();
+          prossimo(i + 1, i.isOdd ? 5 : 10);
+        });
+      }
+
+      prossimo(0, math.max(0, 5 - DateTime.now().difference(partito).inSeconds));
+    }
+
     RispostaAi r;
     try {
       r = await archivio.api.chiediAi(
         _storia.sublist(math.max(0, _storia.length - _maxStoria)),
         foto: foto != null ? base64Encode(foto) : null,
         vocale: vocaleB64,
+        suPezzo: suPezzo,
+        suIntanto: suIntanto,
       );
     } on ErroreSito catch (e) {
       r = RispostaAi(ok: false, testo: e.messaggio);
     } catch (_) {
       r = const RispostaAi(ok: false, testo: 'In questo momento non riesco a rispondere: riprova tra poco o scrivimi.');
     }
+    disegno?.cancel();
+    catena?.cancel();
     if (!mounted) return;
     setState(() {
       if (turno.vocale && r.trascrizione.isNotEmpty) {
@@ -167,6 +278,7 @@ class _SchedaAiState extends State<SchedaAi> {
       _turni.clear();
       _storia.clear();
       _fotoPronta = null;
+      _scegliIdee();
     });
   }
 
@@ -378,14 +490,14 @@ class _SchedaAiState extends State<SchedaAi> {
           ),
         ),
         const SizedBox(height: 26),
-        for (var i = 0; i < _suggerite.length; i++)
+        for (final (i, idea) in (_idee ?? _suggerite).indexed)
           Entrata(
             ritardo: 3 + i,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: _Idea(
-                testo: _suggerite[i],
-                onTap: () => _manda(testo: _suggerite[i]),
+                testo: idea,
+                onTap: () => _manda(testo: idea),
               ),
             ),
           ),
@@ -517,6 +629,11 @@ class _SchedaAiState extends State<SchedaAi> {
 
 // ───────────────────────── un turno ─────────────────────────
 
+/// Mentre si scrive: via i riferimenti [1] e la riga del blocco prodotti, che la risposta definitiva toglie comunque.
+String _soloTesto(String s) => s
+    .replaceAll(RegExp(r'\s*\[\d+(?:\s*,\s*\d+)*\]'), '')
+    .replaceAll(RegExp(r'^.*PRODOTTI NEI NEGOZI.*$\n?', multiLine: true, caseSensitive: false), '');
+
 class _VistaTurno extends StatelessWidget {
   const _VistaTurno({super.key, required this.turno});
 
@@ -526,11 +643,8 @@ class _VistaTurno extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = turno.risposta;
     return Entrata(
-      child: Container(
-        padding: const EdgeInsets.only(top: 20, bottom: 26),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: bianco.withValues(alpha: .07))),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 14, bottom: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -539,38 +653,54 @@ class _VistaTurno extends StatelessWidget {
                 child: _FotoScan(byte: turno.foto!, scansiona: r == null),
               ),
             if (turno.foto != null) const SizedBox(height: 14),
+            // la domanda, a destra: una nuvoletta senza nome, come quelle del sito
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (turno.vocale)
-                  Container(
-                    margin: const EdgeInsets.only(right: 10, top: 2),
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(colors: [accento, _turchese]),
+                const SizedBox(width: 44),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 11),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [accento, _turchese]),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(6),
+                      ),
                     ),
-                    child: const Icon(Icons.mic_rounded, color: bianco, size: 18),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (turno.vocale) const Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(Icons.mic_rounded, color: bianco, size: 18),
+                        ),
+                        Flexible(
+                          child: Text(
+                            turno.domanda,
+                            style: const TextStyle(color: bianco, fontSize: 16, height: 1.35, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                Expanded(
-                  child: Text(turno.domanda, style: stileTitolo(24, colore: bianco, altezza: 1.2)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const _Avatar(lato: 26),
-                const SizedBox(width: 9),
-                Text(
-                  'tk-ai',
-                  style: TextStyle(color: _tenue, fontSize: 13, fontWeight: FontWeight.w800),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            if (r == null) _Attesa(foto: turno.foto != null) else _Risposta(risposta: r),
+            for (final t in turno.intanto) ...[
+              Entrata(child: _NuvolaAi(child: _Articolo(testo: t))),
+              const SizedBox(height: 10),
+            ],
+            _NuvolaAi(
+              child: r != null
+                  ? _Risposta(risposta: r, titoloFonti: turno.titoloFonti)
+                  : turno.scritto.isNotEmpty
+                  ? _Articolo(testo: '${_soloTesto(turno.scritto)} ▍')
+                  : _Attesa(foto: turno.foto != null),
+            ),
           ],
         ),
       ),
@@ -578,10 +708,35 @@ class _VistaTurno extends StatelessWidget {
   }
 }
 
+/// La nuvoletta dell'AI, a sinistra e senza nome.
+class _NuvolaAi extends StatelessWidget {
+  const _NuvolaAi({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: .06),
+      border: Border.all(color: Colors.white.withValues(alpha: .1)),
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(6),
+        topRight: Radius.circular(20),
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+      ),
+    ),
+    child: child,
+  );
+}
+
 class _Risposta extends StatelessWidget {
-  const _Risposta({required this.risposta});
+  const _Risposta({required this.risposta, required this.titoloFonti});
 
   final RispostaAi risposta;
+  final String titoloFonti;
 
   @override
   Widget build(BuildContext context) {
@@ -593,7 +748,7 @@ class _Risposta extends StatelessWidget {
         if (r.fonti.isNotEmpty) ...[
           const SizedBox(height: 20),
           Text(
-            'DOVE L\'HO LETTO',
+            titoloFonti.toUpperCase(),
             style: TextStyle(color: _tenue, fontSize: 11.5, fontWeight: FontWeight.w900, letterSpacing: 1),
           ),
           const SizedBox(height: 10),
@@ -863,6 +1018,7 @@ class _AttesaState extends State<_Attesa> with SingleTickerProviderStateMixin {
   final _timer = <Timer>[];
   int _ora = 0;
   bool _lento = false;
+  final _fraseLenta = _unaDi(_quasi);
 
   @override
   void initState() {
@@ -955,7 +1111,7 @@ class _AttesaState extends State<_Attesa> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-        if (_lento) Text('Ci sono quasi, ancora qualche secondo…', style: TextStyle(color: _tenue, fontSize: 13.5)),
+        if (_lento) Text(_fraseLenta, style: TextStyle(color: _tenue, fontSize: 13.5)),
       ],
     );
   }
