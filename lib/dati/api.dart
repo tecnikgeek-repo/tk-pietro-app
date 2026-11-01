@@ -120,6 +120,25 @@ class Api {
     return versioneAi;
   }
 
+  /// Segnala una risposta al sito; false se non è arrivata.
+  Future<bool> segnalaAi(String domanda, String risposta, String motivo) async {
+    final corpo = jsonEncode({'domanda': domanda, 'risposta': risposta, 'motivo': motivo});
+    Future<http.Response> manda(String nonce) => _c
+        .post(
+          Uri.parse('$sito/wp-json/tk-ai/v1/segnala'),
+          headers: {..._intestazioni, 'Content-Type': 'application/json', 'X-WP-Nonce': nonce},
+          body: corpo,
+        )
+        .timeout(const Duration(seconds: 20));
+    try {
+      var r = await manda(await _nonce());
+      if (r.statusCode == 403) r = await manda(await _nonce(nuovo: true));
+      return r.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Una domanda a tk-ai: [messaggi] sono gli ultimi della conversazione ({ruolo: utente|ai, testo}); [foto] è un
   /// JPEG e [vocale] un WAV 16 kHz, in base64. Il sito cerca nelle sue pagine e chiede al motore tk-ai.
   /// [suPezzo] riceve le parole man mano (null = si ricomincia: il PC si è fermato e risponde il box), [suIntanto] i

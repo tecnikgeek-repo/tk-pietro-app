@@ -705,7 +705,7 @@ class _VistaTurno extends StatelessWidget {
               const SizedBox(height: 10),
             ],
             if (r != null)
-              KeyedSubtree(key: turno.chiaveRisposta, child: _Risposta(risposta: r, titoloFonti: turno.titoloFonti))
+              KeyedSubtree(key: turno.chiaveRisposta, child: _Risposta(domanda: turno.domanda, risposta: r, titoloFonti: turno.titoloFonti))
             else
               _NuvolaAi(child: turno.scritto.isNotEmpty ? _Articolo(testo: '${_soloTesto(turno.scritto)} ▍') : const _Attesa()),
           ],
@@ -745,9 +745,27 @@ class _NuvolaAi extends StatelessWidget {
   );
 }
 
-class _Risposta extends StatelessWidget {
-  const _Risposta({required this.risposta, required this.titoloFonti});
+/// Segnalare una risposta: si sceglie il motivo e arriva nella scheda Domande del pannello del sito.
+Future<void> _segnala(BuildContext context, String domanda, String risposta) async {
+  final motivo = await showDialog<String>(
+    context: context,
+    builder: (c) => SimpleDialog(
+      title: const Text('Segnala questa risposta'),
+      children: [
+        for (final m in const ['Sbagliata', 'Offensiva', 'Altro'])
+          SimpleDialogOption(onPressed: () => Navigator.pop(c, m), child: Text(m)),
+      ],
+    ),
+  );
+  if (motivo == null || !context.mounted) return;
+  final ok = await archivio.api.segnalaAi(domanda, risposta.replaceAll('**', ''), motivo);
+  if (context.mounted) avviso(context, ok ? 'Grazie: la controlliamo.' : 'Non riesco a inviare la segnalazione: riprova.');
+}
 
+class _Risposta extends StatelessWidget {
+  const _Risposta({required this.domanda, required this.risposta, required this.titoloFonti});
+
+  final String domanda;
   final RispostaAi risposta;
   final String titoloFonti;
 
@@ -786,7 +804,7 @@ class _Risposta extends StatelessWidget {
                 pieno: true,
                 onTap: () => schedaAttiva.value = schedaScrivimi,
               )
-            else
+            else ...[
               _Pillola(
                 icona: Icons.copy_rounded,
                 testo: 'Copia',
@@ -795,6 +813,12 @@ class _Risposta extends StatelessWidget {
                   avviso(context, 'Risposta copiata');
                 },
               ),
+              _Pillola(
+                icona: Icons.flag_rounded,
+                testo: 'Segnala',
+                onTap: () => _segnala(context, domanda, r.testo),
+              ),
+            ],
           ],
         ),
       ],
