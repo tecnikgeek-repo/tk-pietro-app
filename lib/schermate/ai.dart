@@ -16,8 +16,7 @@ import 'package:record/record.dart';
 import '../dati/api.dart';
 import '../dati/archivio.dart';
 import '../dati/modelli.dart';
-import '../tema.dart' as tema show accento;
-import '../tema.dart' hide accento;
+import '../tema.dart';
 import 'aspetto_ai.dart';
 import 'comuni.dart';
 import 'home.dart';
@@ -122,7 +121,7 @@ const _titoliFonti = [
 final _caso = math.Random();
 String _unaDi(List<String> v) => v[_caso.nextInt(v.length)];
 /// Il colore della chat: quello scelto nel pannello del sito.
-Color get accento => aspettoAi.value.colore ?? tema.accento;
+Color get _accentoAi => aspettoAi.value.colore ?? accento;
 const _turchese = Color(0xFF22B8C9);
 const _tenue = Color(0xFFA9B4CC);
 const _maxStoria = 10;
@@ -673,7 +672,7 @@ class _VistaTurno extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 11),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [accento, _turchese]),
+                      gradient: LinearGradient(colors: [_accentoAi, _turchese]),
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
@@ -899,7 +898,7 @@ class _Articolo extends StatelessWidget {
                       height: 7,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [accento, _turchese]),
+                        gradient: LinearGradient(colors: [_accentoAi, _turchese]),
                       ),
                     ),
                     Expanded(
@@ -1134,10 +1133,10 @@ class _Avatar extends StatelessWidget {
       gradient: a.logoColore != null ? null : LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [accento, Color(0xFF6D4BD8)],
+        colors: [_accentoAi, Color(0xFF6D4BD8)],
       ),
       boxShadow: [
-        BoxShadow(color: accento.withValues(alpha: .45), blurRadius: lato * .5, offset: Offset(0, lato * .15)),
+        BoxShadow(color: _accentoAi.withValues(alpha: .45), blurRadius: lato * .5, offset: Offset(0, lato * .15)),
       ],
     ),
     child: LogoAi(predefinito: CustomPaint(painter: _PittoreLogo())),
@@ -1176,10 +1175,10 @@ class _LogoGalleggiaState extends State<_LogoGalleggia> with SingleTickerProvide
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
               gradient: SweepGradient(
-                colors: [accento, _turchese, Color(0xFFEC4899), accento],
+                colors: [_accentoAi, _turchese, Color(0xFFEC4899), _accentoAi],
                 transform: GradientRotation(_c.value * 2 * math.pi),
               ),
-              boxShadow: [BoxShadow(color: accento.withValues(alpha: .55), blurRadius: 40, spreadRadius: 2)],
+              boxShadow: [BoxShadow(color: _accentoAi.withValues(alpha: .55), blurRadius: 40, spreadRadius: 2)],
             ),
           ),
           figlio!,
@@ -1228,10 +1227,10 @@ class _BordoAuroraState extends State<_BordoAurora> with SingleTickerProviderSta
         borderRadius: BorderRadius.circular(30),
         gradient: SweepGradient(
           colors: [
-            accento,
+            _accentoAi,
             _turchese,
             const Color(0xFFEC4899),
-            accento,
+            _accentoAi,
           ].map((c) => c.withValues(alpha: widget.veloce ? 1 : .6)).toList(),
           transform: GradientRotation(_c.value * 2 * math.pi),
         ),
@@ -1367,7 +1366,7 @@ class _BarraVoce extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
-                        colors: [accento, _turchese],
+                        colors: [_accentoAi, _turchese],
                       ),
                     ),
                   ),
@@ -1413,7 +1412,7 @@ class _Idea extends StatelessWidget {
             height: 34,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(11),
-              gradient: LinearGradient(colors: [accento.withValues(alpha: .9), _turchese.withValues(alpha: .8)]),
+              gradient: LinearGradient(colors: [_accentoAi.withValues(alpha: .9), _turchese.withValues(alpha: .8)]),
             ),
             child: const Icon(Icons.auto_awesome_rounded, color: bianco, size: 18),
           ),
@@ -1488,14 +1487,14 @@ class _TastoInvia extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: attivo
               ? LinearGradient(
-                  colors: rosso ? const [Color(0xFFEF4444), Color(0xFFEC4899)] : [accento, _turchese],
+                  colors: rosso ? const [Color(0xFFEF4444), Color(0xFFEC4899)] : [_accentoAi, _turchese],
                 )
               : null,
           color: attivo ? null : bianco.withValues(alpha: .1),
           boxShadow: attivo
               ? [
                   BoxShadow(
-                    color: (rosso ? const Color(0xFFEF4444) : accento).withValues(alpha: .5),
+                    color: (rosso ? const Color(0xFFEF4444) : _accentoAi).withValues(alpha: .5),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -1523,7 +1522,7 @@ class _Pillola extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: pieno ? 18 : 14, vertical: pieno ? 11 : 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        gradient: pieno ? LinearGradient(colors: [accento, accentoScuro]) : null,
+        gradient: pieno ? LinearGradient(colors: [_accentoAi, accentoScuro]) : null,
         border: pieno ? null : Border.all(color: bianco.withValues(alpha: .14)),
       ),
       child: Row(
@@ -1556,7 +1555,7 @@ class _VoceFoglio extends StatelessWidget {
       height: 40,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        gradient: LinearGradient(colors: [accento, _turchese]),
+        gradient: LinearGradient(colors: [_accentoAi, _turchese]),
       ),
       child: Icon(icona, color: bianco, size: 21),
     ),
