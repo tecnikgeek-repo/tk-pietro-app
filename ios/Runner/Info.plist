@@ -72,5 +72,9 @@
 	<string>Per scegliere una foto da chiedere a tk-ai.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Per mandare un messaggio vocale a tk-ai.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Serve per salvare nella libreria le immagini che scegli di salvare.</string>
 </dict>
 </plist>
