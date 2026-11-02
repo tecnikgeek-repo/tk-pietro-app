@@ -133,8 +133,8 @@ class _SchermataHomeState extends State<SchermataHome> {
 const _voci = [
   (Icons.home_rounded, Icons.home_outlined, 'Inizio'),
   (Icons.article_rounded, Icons.article_outlined, 'Articoli'),
-  (Icons.forum_rounded, Icons.forum_outlined, 'AI'),
-  (Icons.auto_awesome_rounded, Icons.auto_awesome_outlined, 'Vetrina'),
+  (Icons.auto_awesome_rounded, Icons.auto_awesome_outlined, 'AI'),
+  (Icons.storefront_rounded, Icons.storefront_outlined, 'Vetrina'),
   (Icons.bookmark_rounded, Icons.bookmark_border_rounded, 'Salvati'),
   (Icons.mail_rounded, Icons.mail_outline_rounded, 'Scrivimi'),
 ];

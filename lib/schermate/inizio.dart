@@ -11,6 +11,7 @@ import '../dati/modelli.dart';
 import '../dati/notifiche.dart';
 import '../tema.dart';
 import 'articoli.dart';
+import 'aspetto_ai.dart';
 import 'comuni.dart';
 import 'home.dart';
 import 'scheda.dart';
@@ -71,6 +72,7 @@ class SchedaInizio extends StatelessWidget {
                 ),
               ),
             ],
+            const SliverToBoxAdapter(child: _ChiediAi()),
             if (r.length > 1) ...[
               _titolo('Da leggere'),
               SliverToBoxAdapter(child: _Carosello(r.skip(1).take(6).toList())),
@@ -632,6 +634,150 @@ class _PittorePlay extends CustomPainter {
 }
 
 /// «Le mie app sono su Google Play» (come la scena «store» del sito): tessere delle app, verdi quelle già su Play.
+/// La chat con l'AI, come la sezione «Non cercare. Chiedi.» del sito: le domande aprono la chat con la risposta.
+class _ChiediAi extends StatelessWidget {
+  const _ChiediAi();
+
+  static const _idee = ['Chi è Pietro De Filippis?', 'Pietro realizza siti web?', 'Ci sono app per il telefono?'];
+
+  void _apri(String domanda) {
+    domandaPerAi.value = domanda;
+    schedaAttiva.value = schedaAi;
+  }
+
+  @override
+  Widget build(BuildContext context) => Entrata(
+    child: Container(
+      margin: const EdgeInsets.fromLTRB(16, 22, 16, 0),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        color: const Color(0xFF050A14),
+        boxShadow: const [BoxShadow(color: Color(0x400B1424), blurRadius: 24, offset: Offset(0, 10))],
+      ),
+      child: Stack(
+        children: [
+          Positioned(left: -90, top: -100, child: _luce(280, accento)),
+          Positioned(right: -90, bottom: -110, child: _luce(280, const Color(0xFF6366F1))),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _Etichetta('novità · intelligenza artificiale'),
+                const SizedBox(height: 8),
+                Text('Non cercare.', style: stileTitolo(32, colore: bianco, altezza: 1.1)),
+                ShaderMask(
+                  shaderCallback: (r) => const LinearGradient(colors: [Color(0xFF8CC6F7), accento, sole]).createShader(r),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 4, right: 6),
+                    child: Text(
+                      'Chiedi.',
+                      style: stileTitolo(32, colore: bianco, altezza: 1.15).copyWith(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'tk-ai è l\'intelligenza artificiale che ho costruito io. Ha letto il sito, capisce le domande come le scrivi e ti porta alla pagina giusta.',
+                  style: TextStyle(color: Color(0xFFC9D6E8), fontSize: 15, height: 1.45),
+                ),
+                const SizedBox(height: 16),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => _apri(''),
+                    child: Ink(
+                      padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0B1424),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: accento, width: 1.6),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.auto_awesome_rounded, color: sole, size: 20),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Text('Fai una domanda…', style: TextStyle(color: Color(0xFF93A4BB), fontSize: 15.5)),
+                          ),
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(color: accento, borderRadius: BorderRadius.circular(13)),
+                            child: const Icon(Icons.arrow_forward_rounded, color: bianco, size: 21),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final d in _idee)
+                      GestureDetector(
+                        onTap: () => _apri(d),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0x12FFFFFF),
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(color: const Color(0x33FFFFFF)),
+                          ),
+                          child: Text(d, maxLines: 1, style: const TextStyle(color: Color(0xFFDFE8F4), fontSize: 13)),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                const Wrap(
+                  spacing: 14,
+                  runSpacing: 6,
+                  children: [
+                    _DoteAi(Icons.menu_book_rounded, 'Conosce il sito'),
+                    _DoteAi(Icons.photo_camera_rounded, 'Guarda le foto'),
+                    _DoteAi(Icons.mic_rounded, 'Ascolta i vocali'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  Widget _luce(double lato, Color c) => Container(
+    width: lato,
+    height: lato,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: RadialGradient(colors: [c.withValues(alpha: .42), c.withValues(alpha: 0)]),
+    ),
+  );
+}
+
+class _DoteAi extends StatelessWidget {
+  const _DoteAi(this.icona, this.testo);
+
+  final IconData icona;
+  final String testo;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icona, color: const Color(0xFF8CC6F7), size: 16),
+      const SizedBox(width: 5),
+      Text(testo, style: const TextStyle(color: Color(0xFFAEBCD0), fontSize: 12.5, fontWeight: FontWeight.w600)),
+    ],
+  );
+}
+
 class _Store extends StatelessWidget {
   const _Store(this.app);
 

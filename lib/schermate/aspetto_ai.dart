@@ -33,6 +33,9 @@ class AspettoAi {
 
 final aspettoAi = ValueNotifier<AspettoAi>(const AspettoAi());
 
+/// Domanda arrivata da fuori dalla chat (home): vuota = apre la chat col campo pronto.
+final domandaPerAi = ValueNotifier<String?>(null);
+
 /// Il logo scelto nel pannello; se è quello di sempre resta il disegno dell'app.
 class LogoAi extends StatelessWidget {
   const LogoAi({super.key, required this.predefinito});

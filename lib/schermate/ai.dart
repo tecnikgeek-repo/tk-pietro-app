@@ -148,7 +148,8 @@ class SchedaAi extends StatefulWidget {
   State<SchedaAi> createState() => _SchedaAiState();
 }
 
-class _SchedaAiState extends State<SchedaAi> {
+class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
+  bool _tastiera = false;
   final _turni = <_Turno>[];
   final _storia = <Map<String, String>>[];
   final _campo = TextEditingController();
@@ -177,6 +178,9 @@ class _SchedaAiState extends State<SchedaAi> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    domandaPerAi.addListener(_daFuori);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _daFuori());
     // la versione del motore che risponde: la dà il sito, così cambia da sola senza aggiornare l'app
     archivio.api.chiediVersioneAi().then((v) {
       if (!mounted) return;
@@ -187,8 +191,29 @@ class _SchedaAiState extends State<SchedaAi> {
     });
   }
 
+  // Il campo sale e scende con la tastiera: senza questo, chiudendola la barra delle schede ci finiva sopra
+  @override
+  void didChangeMetrics() {
+    if (!mounted) return;
+    final t = View.of(context).viewInsets.bottom > 0;
+    if (t != _tastiera) setState(() => _tastiera = t);
+  }
+
+  void _daFuori() {
+    final d = domandaPerAi.value;
+    if (d == null || !mounted || _occupato) return;
+    domandaPerAi.value = null;
+    if (d.isEmpty) {
+      _fuoco.requestFocus();
+    } else {
+      _manda(testo: d);
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    domandaPerAi.removeListener(_daFuori);
     _campo.dispose();
     _scorri.dispose();
     _fuoco.dispose();
@@ -413,7 +438,7 @@ class _SchedaAiState extends State<SchedaAi> {
   @override
   Widget build(BuildContext context) {
     final sotto = MediaQuery.paddingOf(context).bottom;
-    final tastiera = View.of(context).viewInsets.bottom > 0;
+    final tastiera = _tastiera;
     return FondoGriglia(
       child: SafeArea(
         bottom: false,
@@ -625,11 +650,22 @@ class _SchedaAiState extends State<SchedaAi> {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 7, left: 4),
-          child: Center(
-            child: Text(
-              'Risponde l\'intelligenza artificiale: può sbagliare.',
-              style: TextStyle(color: _tenue.withValues(alpha: .7), fontSize: 11.5),
-            ),
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            children: [
+              Text(
+                'Risponde l\'intelligenza artificiale: può sbagliare.',
+                style: TextStyle(color: _tenue.withValues(alpha: .7), fontSize: 11.5),
+              ),
+              GestureDetector(
+                onTap: () => apriLink(context, 'https://pietrodefilippis.it/privacy-policy/#chat-ai'),
+                child: Text(
+                  'Privacy',
+                  style: TextStyle(color: _tenue.withValues(alpha: .9), fontSize: 11.5, decoration: TextDecoration.underline),
+                ),
+              ),
+            ],
           ),
         ),
       ],
