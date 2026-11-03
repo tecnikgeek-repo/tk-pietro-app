@@ -462,6 +462,7 @@ class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
                 blendMode: BlendMode.dstIn,
                 child: ListView(
                   controller: _scorri,
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
                   children: [
                     if (_turni.isEmpty) _inizio(),
@@ -471,8 +472,9 @@ class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
               ),
             ),
             Padding(
-              // sopra la barra delle schede; con la tastiera aperta la barra è nascosta
-              padding: EdgeInsets.fromLTRB(14, 4, 14, tastiera ? 10 : 64 + 10 + sotto + 12),
+              // sopra la barra delle schede: con extendBody «sotto» ne comprende già l'altezza;
+              // con la tastiera aperta la barra è nascosta
+              padding: EdgeInsets.fromLTRB(14, 4, 14, tastiera ? 10 : sotto + 12),
               child: _compositore(),
             ),
           ],
