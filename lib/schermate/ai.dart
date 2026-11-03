@@ -392,16 +392,21 @@ class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
 
   Future<void> _iniziaVoce() async {
     if (_occupato) return;
-    if (!await _registratore.hasPermission()) {
-      if (mounted) avviso(context, 'Per mandare un vocale l\'app deve poter usare il microfono');
+    try {
+      if (!await _registratore.hasPermission()) {
+        if (mounted) avviso(context, 'Per mandare un vocale l\'app deve poter usare il microfono');
+        return;
+      }
+      final dir = await getTemporaryDirectory();
+      final percorso = '${dir.path}/tk-ai-vocale.wav';
+      await _registratore.start(
+        const RecordConfig(encoder: AudioEncoder.wav, sampleRate: 16000, numChannels: 1),
+        path: percorso,
+      );
+    } catch (e) {
+      if (mounted) avviso(context, 'Il microfono non parte: $e');
       return;
     }
-    final dir = await getTemporaryDirectory();
-    final percorso = '${dir.path}/tk-ai-vocale.wav';
-    await _registratore.start(
-      const RecordConfig(encoder: AudioEncoder.wav, sampleRate: 16000, numChannels: 1),
-      path: percorso,
-    );
     HapticFeedback.mediumImpact();
     _ampiezza = _registratore.onAmplitudeChanged(const Duration(milliseconds: 90)).listen((a) {
       final v = ((a.current + 50) / 50).clamp(.12, 1.0);
