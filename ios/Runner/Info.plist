@@ -5,7 +5,7 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>it</string>
 	<key>CFBundleDisplayName</key>
 	<string>PDF</string>
 	<key>CFBundleExecutable</key>
@@ -76,5 +76,9 @@
 	<false/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Serve per salvare nella libreria le immagini che scegli di salvare.</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>it</string>
+	</array>
 </dict>
 </plist>
