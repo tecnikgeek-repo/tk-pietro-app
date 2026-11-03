@@ -3,6 +3,7 @@
 // Stesse sezioni della home del sito (pd-home.php).
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../dati/archivio.dart';
@@ -47,8 +48,8 @@ class SchedaInizio extends StatelessWidget {
                   riprova: archivio.aggiorna,
                 ),
               ),
-            if (!archivio.invitoNotificheFatto) const SliverToBoxAdapter(child: _InvitoNotifiche()),
-            if (archivio.catalogo != null && archivio.catalogo!.gruppo('app').any((s) => s.play.isNotEmpty))
+            if (!archivio.invitoNotificheFatto && defaultTargetPlatform == TargetPlatform.android) const SliverToBoxAdapter(child: _InvitoNotifiche()),
+            if (defaultTargetPlatform == TargetPlatform.android && archivio.catalogo != null && archivio.catalogo!.gruppo('app').any((s) => s.play.isNotEmpty))
               SliverToBoxAdapter(child: _Store(archivio.catalogo!.gruppo('app'))),
             if (r.isEmpty && archivio.aggiornando)
               const SliverToBoxAdapter(
@@ -414,7 +415,7 @@ class _InvitoNotifiche extends StatelessWidget {
                       context,
                       ok
                           ? 'Fatto: ti avviso io quando c\'è qualcosa di nuovo'
-                          : 'Notifiche non permesse: puoi attivarle dalle impostazioni di Android',
+                          : 'Notifiche non permesse: puoi attivarle dalle impostazioni del telefono',
                     );
                   }
                 },

@@ -1,5 +1,6 @@
 // Guscio dell'app: sei schede (al centro «AI», la chat con tk-ai) con la barra in basso fluttuante. All'avvio: benvenuto (una volta), aggiornamento
 // dei dati, notifica che ha aperto l'app, controllo degli aggiornamenti dell'app.
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -51,7 +52,7 @@ class _SchermataHomeState extends State<SchermataHome> {
   void _cambia() => setState(() => _aperte.add(schedaAttiva.value));
 
   Future<void> _avvio() async {
-    await benvenutoTk(context, righeExtra: const [righeBenvenuto]);
+    await benvenutoTk(context, righeExtra: [righeBenvenuto]);
     if (!mounted) return;
     if (widget.crash != null) await _mostraCrash(widget.crash!);
     _daNotifica();
@@ -243,7 +244,7 @@ Future<void> apriInformazioniPietro(BuildContext context) => apriInformazioni(
   ],
   notaDati: 'Restano su questo telefono.',
   interruttori: (_) => [
-    ListenableBuilder(
+    if (defaultTargetPlatform == TargetPlatform.android) ListenableBuilder(
       listenable: archivio,
       builder: (context, _) => RigaInterruttore(
         titolo: 'Notifiche di articoli e novità',
@@ -260,6 +261,7 @@ Future<void> apriInformazioniPietro(BuildContext context) => apriInformazioni(
 );
 
 /// Riga in più nel benvenuto.
-const righeBenvenuto =
-    'Gli **articoli salvati** si leggono anche senza internet. Le **notifiche** degli articoli nuovi '
-    'arrivano dal sito una volta ogni ora circa: puoi spegnerle in Informazioni.';
+final righeBenvenuto = defaultTargetPlatform == TargetPlatform.android
+    ? 'Gli **articoli salvati** si leggono anche senza internet. Le **notifiche** degli articoli nuovi '
+          'arrivano dal sito una volta ogni ora circa: puoi spegnerle in Informazioni.'
+    : 'Gli **articoli salvati** si leggono anche senza internet.';

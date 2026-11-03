@@ -404,7 +404,7 @@ class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
         path: percorso,
       );
     } catch (e) {
-      if (mounted) avviso(context, 'Il microfono non parte: $e');
+      if (mounted) avviso(context, 'Non riesco ad attivare il microfono: chiudi le altre app che lo usano e riprova.');
       return;
     }
     HapticFeedback.mediumImpact();

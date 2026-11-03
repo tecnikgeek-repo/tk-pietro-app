@@ -2,6 +2,7 @@
 // e cosa col Pro, contributo (nota già pronta da incollare su PayPal), download per ogni sistema, codice sorgente.
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -528,7 +529,7 @@ class _SchedaProgramma extends StatelessWidget {
   Widget build(BuildContext context) {
     final d = s.scarica;
     final azioni = <Widget>[
-      if (d['android'] != null)
+      if (d['android'] != null && defaultTargetPlatform == TargetPlatform.android)
         BottoneTk(
           testo: 'Scarica per Android',
           icona: Icons.android_rounded,
@@ -540,7 +541,7 @@ class _SchedaProgramma extends StatelessWidget {
         BottoneTk(testo: 'Mac', icona: Icons.laptop_mac_rounded, onTap: () => apriLink(context, d['mac']!)),
       if (d['link'] != null)
         BottoneTk(testo: 'Scarica', icona: Icons.download_rounded, onTap: () => apriLink(context, d['link']!)),
-      if (d.isEmpty)
+      if (d.isEmpty || (d.length == 1 && d['android'] != null && defaultTargetPlatform != TargetPlatform.android))
         BottoneTk(
           testo: 'Contattami',
           icona: Icons.mail_rounded,

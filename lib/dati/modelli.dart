@@ -1,5 +1,7 @@
 // Dati dell'app: articoli del blog e voci della vetrina, letti dalle API del sito (wp/v2 e pd-app/v1).
 
+import 'package:flutter/foundation.dart';
+
 String _s(Object? v) => v == null ? '' : '$v';
 int _i(Object? v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
 List<String> _l(Object? v) => v is List ? v.map((e) => '$e').toList() : const [];
@@ -210,7 +212,9 @@ class Programma {
   final Map<String, String> scarica;
 
   /// Piattaforme già disponibili e quelle in arrivo («iPhone · prossimamente»).
-  List<String> get disponibili => piattaforme.where((p) => !p.contains('prossimamente')).toList();
+  List<String> get disponibili => piattaforme
+      .where((p) => !p.contains('prossimamente') && (defaultTargetPlatform == TargetPlatform.android || !p.contains('Android')))
+      .toList();
   List<String> get inArrivo =>
       piattaforme.where((p) => p.contains('prossimamente')).map((p) => p.split('·').first.trim()).toList();
 
