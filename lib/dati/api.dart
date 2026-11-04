@@ -38,7 +38,7 @@ class Api {
       throw const ErroreSito('Non riesco a raggiungere il sito: controlla la connessione.');
     }
     if (r.statusCode == 400 && percorso.contains('/posts')) return const []; // pagina oltre l'ultima
-    if (r.statusCode != 200) throw ErroreSito('Il sito ha risposto ${r.statusCode}: riprova tra poco.');
+    if (r.statusCode != 200) throw const ErroreSito('Il sito non risponde come dovrebbe: riprova tra poco.');
     return jsonDecode(utf8.decode(r.bodyBytes));
   }
 
@@ -202,7 +202,7 @@ class Api {
       final tutta = await http.Response.fromStream(r);
       return RispostaAi.daJson((jsonDecode(utf8.decode(tutta.bodyBytes)) as Map).cast<String, dynamic>());
     } catch (_) {
-      throw ErroreSito('Il sito ha risposto ${r.statusCode}: riprova tra poco.');
+      throw const ErroreSito('Il sito non risponde come dovrebbe: riprova tra poco.');
     }
   }
 
@@ -235,7 +235,7 @@ class Api {
       throw const ErroreSito('Messaggio non inviato: controlla la connessione e riprova.');
     }
     if (r.statusCode == 200) return;
-    String testo = 'Messaggio non inviato (errore ${r.statusCode}).';
+    String testo = 'Messaggio non inviato: riprova tra poco.';
     try {
       final j = jsonDecode(utf8.decode(r.bodyBytes));
       if (j is Map && j['message'] is String) testo = j['message'] as String;

@@ -11,6 +11,7 @@ import '../dati/modelli.dart';
 import '../tema.dart';
 import 'ascolta.dart';
 import 'comuni.dart';
+import '../dati/api.dart';
 
 class _Fabbrica extends WidgetFactory with CachedNetworkImageFactory {}
 
@@ -63,7 +64,7 @@ class _SchermataLettoreState extends State<SchermataLettore> {
       setState(() => _a = a);
       archivio.segnaLetto(a.id);
     } catch (e) {
-      if (mounted) setState(() => _errore = '$e');
+      if (mounted) setState(() => _errore = e is ErroreSito ? e.messaggio : fraseErrore('Articolo non disponibile.', e));
     } finally {
       if (mounted) setState(() => _carico = false);
     }

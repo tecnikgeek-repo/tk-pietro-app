@@ -113,7 +113,10 @@ class AppPietro extends StatelessWidget {
         child: FutureBuilder<void>(
           future: avvio,
           builder: (_, s) {
-            if (s.hasError) return _ErroreAvvio('${s.error}');
+            if (s.hasError) {
+              debugPrint('Avvio non riuscito: ${s.error}');
+              return const _ErroreAvvio();
+            }
             if (s.connectionState != ConnectionState.done) return const AvvioPietro();
             return SchermataHome(crash: crashPrecedente);
           },
@@ -124,9 +127,7 @@ class AppPietro extends StatelessWidget {
 }
 
 class _ErroreAvvio extends StatelessWidget {
-  const _ErroreAvvio(this.errore);
-
-  final String errore;
+  const _ErroreAvvio();
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -144,14 +145,8 @@ class _ErroreAvvio extends StatelessWidget {
               style: TextStyle(color: bianco, fontSize: 20, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
-            Text(
-              errore,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: grigio300),
-            ),
-            const SizedBox(height: 14),
             const Text(
-              'Scrivi a TecnikGeek con questo messaggio.',
+              'Chiudi e riapri l\'app: se non si apre ancora, scrivi a TecnikGeek.',
               textAlign: TextAlign.center,
               style: TextStyle(color: grigio400, fontSize: 13),
             ),
