@@ -8,6 +8,7 @@ import '../dati/formati.dart';
 import '../dati/modelli.dart';
 import '../tema.dart';
 import 'lettore.dart';
+import '../dati/api.dart';
 
 /// Apre un indirizzo nel browser (o nell'app giusta: PayPal, Instagram…).
 Future<void> apriLink(BuildContext context, String url) async {
@@ -332,7 +333,7 @@ class TastoSalva extends StatelessWidget {
               avviso(context, salvato ? 'Tolto dai salvati' : 'Salvato: lo leggi anche senza internet');
             }
           } catch (e) {
-            if (context.mounted) avviso(context, '$e');
+            if (context.mounted) avviso(context, e is ErroreSito ? e.messaggio : fraseErrore('Non sono riuscito a salvarlo.', e));
           }
         },
         child: Padding(

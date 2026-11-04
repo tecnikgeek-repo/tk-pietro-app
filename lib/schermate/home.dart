@@ -84,14 +84,14 @@ class _SchermataHomeState extends State<SchermataHome> {
     context: context,
     builder: (d) => AlertDialog(
       title: const Text('L\'ultima volta qualcosa è andato storto'),
-      content: SingleChildScrollView(child: Text(testo, style: const TextStyle(fontSize: 12))),
+      content: const Text('Se succede ancora, premi «Copia i dettagli» e mandali a TecnikGeek.'),
       actions: [
         TextButton(
           onPressed: () {
             Clipboard.setData(ClipboardData(text: testo));
             Navigator.pop(d);
           },
-          child: const Text('Copia'),
+          child: const Text('Copia i dettagli'),
         ),
         FilledButton(onPressed: () => Navigator.pop(d), child: const Text('Chiudi')),
       ],

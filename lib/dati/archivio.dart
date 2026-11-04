@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
 import 'modelli.dart';
+import '../kit_tk.dart';
 
 late Archivio archivio;
 
@@ -125,7 +126,7 @@ class Archivio extends ChangeNotifier {
     } on ErroreSito catch (e) {
       erroreRete = e.messaggio;
     } catch (e) {
-      erroreRete = 'Aggiornamento non riuscito: $e';
+      erroreRete = fraseErrore('Aggiornamento non riuscito.', e);
     } finally {
       aggiornando = false;
       notifyListeners();
