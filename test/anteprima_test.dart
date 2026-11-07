@@ -177,6 +177,22 @@ void main() {
       'scheda-plugin',
       prima: () => t.pump(const Duration(seconds: 1)),
     );
+    // stessa scheda scorsa fino alla card «Versione Pro · Su richiesta» con il suggerimento di donazione
+    await _scatta(
+      t,
+      Builder(
+        builder: (context) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => apriSchedaPlugin(context, fp));
+          return const Scaffold();
+        },
+      ),
+      'scheda-plugin-pro',
+      prima: () async {
+        await t.pump(const Duration(seconds: 1));
+        await t.drag(find.byType(Scrollable).last, const Offset(0, -1300));
+        await t.pump(const Duration(milliseconds: 600));
+      },
+    );
     await _scatta(
       t,
       Builder(
