@@ -2,8 +2,7 @@
 
 String _s(Object? v) => v == null ? '' : '$v';
 int _i(Object? v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
-List<String> _l(Object? v) =>
-    v is List ? v.map((e) => '$e').toList() : const [];
+List<String> _l(Object? v) => v is List ? v.map((e) => '$e').toList() : const [];
 
 /// Toglie le entità HTML che WordPress lascia nei titoli («l&#8217;AI» → «l’AI»).
 String pulisciTesto(String t) {
@@ -27,10 +26,8 @@ String pulisciTesto(String t) {
   };
   return t.replaceAllMapped(RegExp(r'&(#x[0-9a-fA-F]+|#\d+|[a-zA-Z]+);'), (m) {
     final e = m.group(1)!;
-    if (e.startsWith('#x'))
-      return String.fromCharCode(int.parse(e.substring(2), radix: 16));
-    if (e.startsWith('#'))
-      return String.fromCharCode(int.parse(e.substring(1)));
+    if (e.startsWith('#x')) return String.fromCharCode(int.parse(e.substring(2), radix: 16));
+    if (e.startsWith('#')) return String.fromCharCode(int.parse(e.substring(1)));
     return nomi[e] ?? m.group(0)!;
   });
 }
@@ -42,17 +39,10 @@ class Categoria {
   final String nome;
   final int conteggio;
 
-  factory Categoria.daJson(Map<String, dynamic> j) => Categoria(
-    _i(j['id']),
-    pulisciTesto(_s(j['nome'] ?? j['name'])),
-    _i(j['count'] ?? j['conteggio']),
-  );
+  factory Categoria.daJson(Map<String, dynamic> j) =>
+      Categoria(_i(j['id']), pulisciTesto(_s(j['nome'] ?? j['name'])), _i(j['count'] ?? j['conteggio']));
 
-  Map<String, dynamic> json() => {
-    'id': id,
-    'nome': nome,
-    'conteggio': conteggio,
-  };
+  Map<String, dynamic> json() => {'id': id, 'nome': nome, 'conteggio': conteggio};
 }
 
 class Articolo {
@@ -87,12 +77,8 @@ class Articolo {
   /// Dal JSON di wp/v2/posts con il campo pd_app, oppure da quello salvato sul telefono.
   factory Articolo.daJson(Map<String, dynamic> j) {
     final pd = (j['pd_app'] as Map?)?.cast<String, dynamic>() ?? j;
-    final titolo = j['title'] is Map
-        ? _s((j['title'] as Map)['rendered'])
-        : _s(j['titolo']);
-    final contenuto = j['content'] is Map
-        ? _s((j['content'] as Map)['rendered'])
-        : j['contenuto'] as String?;
+    final titolo = j['title'] is Map ? _s((j['title'] as Map)['rendered']) : _s(j['titolo']);
+    final contenuto = j['content'] is Map ? _s((j['content'] as Map)['rendered']) : j['contenuto'] as String?;
     return Articolo(
       id: _i(j['id']),
       titolo: pulisciTesto(titolo),
@@ -102,10 +88,7 @@ class Articolo {
       minuti: _i(pd['minuti']).clamp(1, 99),
       copertina: _s(pd['copertina']),
       miniatura: _s(pd['miniatura']),
-      categorie: [
-        for (final c in (pd['categorie'] as List? ?? const []))
-          Categoria.daJson((c as Map).cast()),
-      ],
+      categorie: [for (final c in (pd['categorie'] as List? ?? const [])) Categoria.daJson((c as Map).cast())],
       estratto: pulisciTesto(_s(pd['estratto'])),
       contenuto: contenuto,
     );
@@ -162,18 +145,7 @@ class Plugin {
     this.tema = false,
   });
 
-  final String slug,
-      nome,
-      tipo,
-      emoji,
-      categoria,
-      corta,
-      desc,
-      sblocca,
-      versione,
-      scheda,
-      scarica,
-      contatta;
+  final String slug, nome, tipo, emoji, categoria, corta, desc, sblocca, versione, scheda, scarica, contatta;
   final List<String> free, pro;
   final int installazioni;
 
@@ -238,12 +210,9 @@ class Programma {
   final Map<String, String> scarica;
 
   /// Piattaforme già disponibili e quelle in arrivo («iPhone · prossimamente»).
-  List<String> get disponibili =>
-      piattaforme.where((p) => !p.contains('prossimamente')).toList();
-  List<String> get inArrivo => piattaforme
-      .where((p) => p.contains('prossimamente'))
-      .map((p) => p.split('·').first.trim())
-      .toList();
+  List<String> get disponibili => piattaforme.where((p) => !p.contains('prossimamente')).toList();
+  List<String> get inArrivo =>
+      piattaforme.where((p) => p.contains('prossimamente')).map((p) => p.split('·').first.trim()).toList();
 
   factory Programma.daJson(Map<String, dynamic> j) => Programma(
     slug: _s(j['slug']),
@@ -257,9 +226,7 @@ class Programma {
     versione: _s(j['versione']),
     installazioni: _i(j['installazioni']),
     codice: _s(j['codice']),
-    scarica: (j['scarica'] is Map)
-        ? (j['scarica'] as Map).map((k, v) => MapEntry('$k', '$v'))
-        : const {},
+    scarica: (j['scarica'] is Map) ? (j['scarica'] as Map).map((k, v) => MapEntry('$k', '$v')) : const {},
     play: _s(j['play']),
     ios: _s(j['ios']),
   );
@@ -281,9 +248,7 @@ class Argomento {
   final int categoria, totale;
 
   factory Argomento.daJson(Map<String, dynamic> j) {
-    final u = (j['ultimo'] is Map)
-        ? (j['ultimo'] as Map).cast<String, dynamic>()
-        : const <String, dynamic>{};
+    final u = (j['ultimo'] is Map) ? (j['ultimo'] as Map).cast<String, dynamic>() : const <String, dynamic>{};
     return Argomento(
       chiave: _s(j['chiave']),
       titolo: _s(j['titolo']),
@@ -314,40 +279,20 @@ class Catalogo {
   final Map<String, int> numeri;
   final DateTime? aggiornato;
 
-  List<Programma> gruppo(String g) =>
-      software.where((s) => s.gruppo == g).toList();
+  List<Programma> gruppo(String g) => software.where((s) => s.gruppo == g).toList();
 
   /// Installazioni attive in tutto (plugin, temi, programmi e app).
   int get installazioniTotali =>
-      [...plugin, ...temi].fold(0, (a, p) => a + p.installazioni) +
-      software.fold(0, (a, s) => a + s.installazioni);
+      [...plugin, ...temi].fold(0, (a, p) => a + p.installazioni) + software.fold(0, (a, s) => a + s.installazioni);
 
   factory Catalogo.daJson(Map<String, dynamic> j) => Catalogo(
-    plugin: [
-      for (final p in (j['plugin'] as List? ?? const []))
-        Plugin.daJson((p as Map).cast()),
-    ],
-    temi: [
-      for (final p in (j['temi'] as List? ?? const []))
-        Plugin.daJson((p as Map).cast(), tema: true),
-    ],
-    software: [
-      for (final s in (j['software'] as List? ?? const []))
-        Programma.daJson((s as Map).cast()),
-    ],
-    dona: _s(j['dona']).isEmpty
-        ? 'https://pietrodefilippis.it/donazione/'
-        : _s(j['dona']),
-    numeri: (j['numeri'] as Map? ?? const {}).map(
-      (k, v) => MapEntry('$k', _i(v)),
-    ),
-    aggiornato: j['aggiornato'] == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(_i(j['aggiornato']) * 1000),
-    argomenti: [
-      for (final a in (j['argomenti'] as List? ?? const []))
-        Argomento.daJson((a as Map).cast()),
-    ],
+    plugin: [for (final p in (j['plugin'] as List? ?? const [])) Plugin.daJson((p as Map).cast())],
+    temi: [for (final p in (j['temi'] as List? ?? const [])) Plugin.daJson((p as Map).cast(), tema: true)],
+    software: [for (final s in (j['software'] as List? ?? const [])) Programma.daJson((s as Map).cast())],
+    dona: _s(j['dona']).isEmpty ? 'https://pietrodefilippis.it/donazione/' : _s(j['dona']),
+    numeri: (j['numeri'] as Map? ?? const {}).map((k, v) => MapEntry('$k', _i(v))),
+    aggiornato: j['aggiornato'] == null ? null : DateTime.fromMillisecondsSinceEpoch(_i(j['aggiornato']) * 1000),
+    argomenti: [for (final a in (j['argomenti'] as List? ?? const [])) Argomento.daJson((a as Map).cast())],
   );
 }
 
@@ -355,13 +300,7 @@ class Catalogo {
 
 /// Una pagina del sito usata da tk-ai per rispondere (le schede «Dove l'ho letto»).
 class FonteAi {
-  const FonteAi({
-    required this.titolo,
-    required this.url,
-    this.tipo = '',
-    this.immagine = '',
-    this.estratto = '',
-  });
+  const FonteAi({required this.titolo, required this.url, this.tipo = '', this.immagine = '', this.estratto = ''});
 
   final String titolo, url, tipo, immagine, estratto;
 
