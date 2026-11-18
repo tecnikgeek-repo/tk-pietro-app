@@ -392,16 +392,21 @@ class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
 
   Future<void> _iniziaVoce() async {
     if (_occupato) return;
-    if (!await _registratore.hasPermission()) {
-      if (mounted) avviso(context, 'Per mandare un vocale l\'app deve poter usare il microfono');
+    try {
+      if (!await _registratore.hasPermission()) {
+        if (mounted) avviso(context, 'Per mandare un vocale l\'app deve poter usare il microfono');
+        return;
+      }
+      final dir = await getTemporaryDirectory();
+      final percorso = '${dir.path}/tk-ai-vocale.wav';
+      await _registratore.start(
+        const RecordConfig(encoder: AudioEncoder.wav, sampleRate: 16000, numChannels: 1),
+        path: percorso,
+      );
+    } catch (e) {
+      if (mounted) avviso(context, 'Non riesco ad attivare il microfono: chiudi le altre app che lo usano e riprova.');
       return;
     }
-    final dir = await getTemporaryDirectory();
-    final percorso = '${dir.path}/tk-ai-vocale.wav';
-    await _registratore.start(
-      const RecordConfig(encoder: AudioEncoder.wav, sampleRate: 16000, numChannels: 1),
-      path: percorso,
-    );
     HapticFeedback.mediumImpact();
     _ampiezza = _registratore.onAmplitudeChanged(const Duration(milliseconds: 90)).listen((a) {
       final v = ((a.current + 50) / 50).clamp(.12, 1.0);
@@ -457,6 +462,7 @@ class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
                 blendMode: BlendMode.dstIn,
                 child: ListView(
                   controller: _scorri,
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
                   children: [
                     if (_turni.isEmpty) _inizio(),
@@ -466,8 +472,9 @@ class _SchedaAiState extends State<SchedaAi> with WidgetsBindingObserver {
               ),
             ),
             Padding(
-              // sopra la barra delle schede; con la tastiera aperta la barra è nascosta
-              padding: EdgeInsets.fromLTRB(14, 4, 14, tastiera ? 10 : 64 + 10 + sotto + 12),
+              // sopra la barra delle schede: con extendBody «sotto» ne comprende già l'altezza;
+              // con la tastiera aperta la barra è nascosta
+              padding: EdgeInsets.fromLTRB(14, 4, 14, tastiera ? 10 : sotto + 12),
               child: _compositore(),
             ),
           ],

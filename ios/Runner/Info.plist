@@ -5,7 +5,7 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>it</string>
 	<key>CFBundleDisplayName</key>
 	<string>PDF</string>
 	<key>CFBundleExecutable</key>
@@ -72,5 +72,13 @@
 	<string>Per scegliere una foto da chiedere a tk-ai.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Per mandare un messaggio vocale a tk-ai.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Serve per salvare nella libreria le immagini che scegli di salvare.</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>it</string>
+	</array>
 </dict>
 </plist>

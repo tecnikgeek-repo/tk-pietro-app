@@ -90,6 +90,12 @@ class AppPietro extends StatelessWidget {
     return MaterialApp(
       title: 'pietrodefilippis.it',
       debugShowCheckedModeBanner: false,
+      // iPhone: la tastiera non ha un tasto per chiuderla, si chiude toccando fuori dal campo
+      builder: (_, figlio) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: figlio,
+      ),
       theme: base.copyWith(
         scaffoldBackgroundColor: carta,
         pageTransitionsTheme: const PageTransitionsTheme(

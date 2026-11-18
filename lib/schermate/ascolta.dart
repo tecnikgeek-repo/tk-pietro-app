@@ -1,5 +1,7 @@
 // «Ascolta questo articolo», come il lettore vocale del sito: la voce italiana del telefono legge titolo e testo
 // a pezzi di qualche frase (Android non accetta testi lunghi in una volta), con barra, pausa e velocità.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
@@ -64,7 +66,8 @@ class _AscoltaState extends State<Ascolta> {
 
   Future<void> _prepara() async {
     try {
-      await _tts.setLanguage('it-IT');
+      final lingua = await _tts.setLanguage('it-IT');
+      if (Platform.isIOS && lingua != 1) throw StateError('voce italiana assente');
       await _tts.awaitSpeakCompletion(true);
       _tts.setProgressHandler((_, inizio, _, _) {
         if (mounted) setState(() => _nelPezzo = inizio);
@@ -86,6 +89,18 @@ class _AscoltaState extends State<Ascolta> {
     super.dispose();
   }
 
+  /// iPhone: senza «playback» la voce tace con l'interruttore silenzioso, e dopo un vocale
+  /// uscirebbe dall'altoparlante delle chiamate. Si reimposta a ogni lettura.
+  Future<void> _audioIphone() async {
+    if (!Platform.isIOS) return;
+    await _tts.setSharedInstance(true);
+    await _tts.setIosAudioCategory(
+      IosTextToSpeechAudioCategory.playback,
+      [IosTextToSpeechAudioCategoryOptions.duckOthers],
+      IosTextToSpeechAudioMode.spokenAudio,
+    );
+  }
+
   /// Velocità: Android parla «normale» a 0.5.
   double get _rate => .5 * _velocita[_vel];
 
@@ -96,6 +111,7 @@ class _AscoltaState extends State<Ascolta> {
       _fatti = 0;
     }
     setState(() => _parla = true);
+    await _audioIphone();
     await _tts.setSpeechRate(_rate);
     while (_parla && _i < _pezzi.length) {
       _nelPezzo = 0;
