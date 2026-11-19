@@ -33,6 +33,11 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- il sito pietrodefilippis.it sa che l'app è installata (Chrome, getInstalledRelatedApps)
+             e non propone più di scaricarla -->
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
     </application>
     <!-- link esterni (sito, PayPal, social) e testo da elaborare -->
     <queries>

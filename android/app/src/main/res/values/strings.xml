@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- dichiarazione del sito: serve a pietrodefilippis.it per capire che l'app c'è già -->
+    <string name="asset_statements" translatable="false">[{\"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": {\"namespace\": \"web\", \"site\": \"https://pietrodefilippis.it\"}}]</string>
+</resources>
