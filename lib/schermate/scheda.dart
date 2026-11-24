@@ -55,9 +55,10 @@ class _Pagina extends StatelessWidget {
     required this.dati,
     required this.corpo,
     this.azioni = const [],
+    this.icona = '',
   });
 
-  final String emoji, nome, scena, pillola;
+  final String emoji, nome, scena, pillola, icona;
   final List<(String, String, bool)> dati; // valore, etichetta, vivo
   final List<Widget> corpo;
   final List<Widget> azioni;
@@ -99,7 +100,7 @@ class _Pagina extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(left: 20, bottom: -44, child: IconaFluttuante(emoji, lato: 96, colore: c2)),
+                    Positioned(left: 20, bottom: -44, child: IconaFluttuante(emoji, icona: icona, lato: 96, colore: c2)),
                   ],
                 ),
               ),
@@ -476,6 +477,7 @@ class _SchedaProgramma extends StatelessWidget {
     ];
     return _Pagina(
       emoji: s.emoji,
+      icona: s.icona,
       nome: s.nome,
       scena: s.gruppo,
       pillola: s.codice.isNotEmpty ? 'Gratis · software libero' : etichettaTipo(s.gruppo),

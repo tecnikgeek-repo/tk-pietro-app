@@ -16,6 +16,7 @@ import 'aspetto_ai.dart';
 import 'comuni.dart';
 import 'home.dart';
 import 'scheda.dart';
+import 'vetrina.dart';
 
 const social = [
   (Icons.facebook_rounded, 'Facebook', 'https://www.facebook.com/pietrodefilippis.pagina', Color(0xFF1877F2)),
@@ -553,7 +554,7 @@ class _StrisciaApp extends StatelessWidget {
                         color: bianco.withValues(alpha: .22),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Text(s.emoji, style: const TextStyle(fontSize: 24)),
+                      child: iconaOEmoji(s.emoji, s.icona, 44, raggio: 14),
                     ),
                     const Spacer(),
                     Text(
@@ -608,6 +609,7 @@ class _Etichetta extends StatelessWidget {
 
 /// Pagina sviluppatore su Google Play: tutte le app pubblicate.
 const paginaPlay = 'https://play.google.com/store/apps/dev?id=7693415642899552584';
+const paginaAppStore = 'https://apps.apple.com/it/developer/pietro-de-filippis/id1178454007';
 
 /// Logo di Google Play in quattro spicchi (disegnato qui, come sul sito).
 class _LogoPlay extends StatelessWidget {
@@ -787,6 +789,7 @@ class _Store extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final su = app.where((s) => s.play.isNotEmpty).length;
+    final suIos = app.where((s) => s.ios.isNotEmpty).length;
     return Entrata(
       child: Container(
         margin: const EdgeInsets.fromLTRB(16, 22, 16, 0),
@@ -815,16 +818,19 @@ class _Store extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
-                        'su Google Play.',
+                        suIos > 0 ? 'su Google Play e App Store.' : 'su Google Play.',
                         style: stileTitolo(27, colore: bianco, altezza: 1.15).copyWith(fontStyle: FontStyle.italic),
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Controllate da Google, si installano con un tocco e si aggiornano da sole. '
-                    'E presto arrivano anche su iPhone, dall\'App Store.',
-                    style: TextStyle(color: grigio300, fontSize: 13.5, height: 1.45, fontWeight: FontWeight.w500),
+                  Text(
+                    suIos > 0
+                        ? 'Controllate da Google e da Apple, si installano con un tocco e si aggiornano da sole. '
+                              'Su Android da Google Play, su iPhone dall\'App Store.'
+                        : 'Controllate da Google, si installano con un tocco e si aggiornano da sole. '
+                              'E presto arrivano anche su iPhone, dall\'App Store.',
+                    style: const TextStyle(color: grigio300, fontSize: 13.5, height: 1.45, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 18),
                   GridView.count(
@@ -855,19 +861,22 @@ class _Store extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Expanded(
+                      Expanded(
                         child: _Bollo(
-                          logo: Icon(Icons.apple, color: bianco, size: 28),
-                          sopra: 'Prossimamente su',
+                          logo: const Icon(Icons.apple, color: bianco, size: 28),
+                          sopra: suIos > 0 ? 'Disponibili su' : 'Prossimamente su',
                           nome: 'App Store',
-                          presto: true,
+                          presto: suIos == 0,
+                          onTap: () => apriLink(context, paginaAppStore),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    '$su app già su Google Play · ${app.length - su} in arrivo · tutte gratis, senza pubblicità',
+                    suIos > 0
+                        ? '$su app su Google Play · $suIos su App Store · tutte gratis, senza pubblicità'
+                        : '$su app già su Google Play · ${app.length - su} in arrivo · tutte gratis, senza pubblicità',
                     style: const TextStyle(color: grigio300, fontSize: 12, height: 1.4, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -916,7 +925,7 @@ class _TesseraStore extends StatelessWidget {
             ),
             child: Opacity(
               opacity: su ? 1 : .7,
-              child: Text(s.emoji, style: const TextStyle(fontSize: 27)),
+              child: iconaOEmoji(s.emoji, s.icona, 53, raggio: 14.5),
             ),
           ),
           const SizedBox(height: 6),
@@ -933,7 +942,7 @@ class _TesseraStore extends StatelessWidget {
               if (su) ...[const PuntinoVivo(lato: 5), const SizedBox(width: 4)],
               Flexible(
                 child: Text(
-                  su ? 'su Google Play' : 'in arrivo',
+                  su ? (s.ios.isNotEmpty ? 'Play · App Store' : 'su Google Play') : 'in arrivo',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -951,7 +960,7 @@ class _TesseraStore extends StatelessWidget {
   }
 }
 
-/// Bottone nero «Disponibili su Google Play» / «Prossimamente su App Store» (spento, col bollino PRESTO).
+/// Bottone nero «Disponibili su Google Play / App Store»; «Prossimamente su» spento col bollino PRESTO finché non c'è.
 class _Bollo extends StatelessWidget {
   const _Bollo({required this.logo, required this.sopra, required this.nome, this.onTap, this.presto = false});
 

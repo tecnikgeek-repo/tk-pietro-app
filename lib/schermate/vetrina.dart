@@ -2,6 +2,7 @@
 // icona che fluttua, installazioni attive col puntino che pulsa). Tocco = scheda completa.
 import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../dati/archivio.dart';
@@ -61,6 +62,7 @@ class _SchedaVetrinaState extends State<SchedaVetrina> {
             voci.add(
               CardVetrina(
                 emoji: s.emoji,
+                icona: s.icona,
                 nome: s.nome,
                 testo: s.corta,
                 scena: s.gruppo,
@@ -309,9 +311,10 @@ class CardVetrina extends StatelessWidget {
     required this.installazioni,
     required this.piede,
     required this.onTap,
+    this.icona = '',
   });
 
-  final String emoji, nome, testo, scena, pillola, piede;
+  final String emoji, nome, testo, scena, pillola, piede, icona;
   final int installazioni;
   final VoidCallback onTap;
 
@@ -351,7 +354,7 @@ class CardVetrina extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(left: 14, bottom: -26, child: IconaFluttuante(emoji, lato: 58, colore: c2)),
+                  Positioned(left: 14, bottom: -26, child: IconaFluttuante(emoji, icona: icona, lato: 58, colore: c2)),
                 ],
               ),
             ),
@@ -486,11 +489,32 @@ class _PittoreScena extends CustomPainter {
   bool shouldRepaint(covariant _PittoreScena old) => old.t != t || old.c1 != c1;
 }
 
-/// Icona (emoji) in un quadrato bianco con ombra, che sale e scende piano.
-class IconaFluttuante extends StatefulWidget {
-  const IconaFluttuante(this.emoji, {super.key, this.lato = 58, this.colore = accento});
+/// Icona originale dell'app (immagine del sito, ritagliata agli angoli); finché si scarica o se manca, l'emoji.
+Widget iconaOEmoji(String emoji, String icona, double lato, {double? raggio}) {
+  final testo = Center(child: Text(emoji, style: TextStyle(fontSize: lato * .5)));
+  if (icona.isEmpty) return testo;
+  // ignore: invalid_use_of_visible_for_testing_member
+  final prova = immaginiDiProva?.call(icona.split('?').first);
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(raggio ?? lato * .3),
+    child: prova != null
+        ? Image(image: prova, width: lato, height: lato, fit: BoxFit.cover)
+        : CachedNetworkImage(
+            imageUrl: icona,
+            width: lato,
+            height: lato,
+            fit: BoxFit.cover,
+            placeholder: (_, _) => testo,
+            errorWidget: (_, _, _) => testo,
+          ),
+  );
+}
 
-  final String emoji;
+/// Icona (originale o emoji) in un quadrato bianco con ombra, che sale e scende piano.
+class IconaFluttuante extends StatefulWidget {
+  const IconaFluttuante(this.emoji, {super.key, this.icona = '', this.lato = 58, this.colore = accento});
+
+  final String emoji, icona;
   final double lato;
   final Color colore;
 
@@ -524,7 +548,7 @@ class _IconaFluttuanteState extends State<IconaFluttuante> with SingleTickerProv
         borderRadius: BorderRadius.circular(widget.lato * .3),
         boxShadow: [BoxShadow(color: widget.colore.withValues(alpha: .35), blurRadius: 14, offset: const Offset(0, 6))],
       ),
-      child: Text(widget.emoji, style: TextStyle(fontSize: widget.lato * .5)),
+      child: iconaOEmoji(widget.emoji, widget.icona, widget.lato),
     ),
   );
 }

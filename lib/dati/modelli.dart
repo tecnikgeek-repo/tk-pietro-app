@@ -199,9 +199,13 @@ class Programma {
     this.scarica = const {},
     this.play = '',
     this.ios = '',
+    this.icona = '',
   });
 
   final String slug, nome, gruppo, emoji, corta, cosa, versione, codice;
+
+  /// Icona originale dal sito (la stessa degli store); vuota se manca → si usa l'emoji.
+  final String icona;
 
   /// Link di Google Play (vuoto finché l'app non è pubblicata lì) e dell'App Store.
   final String play, ios;
@@ -233,6 +237,7 @@ class Programma {
     scarica: (j['scarica'] is Map) ? (j['scarica'] as Map).map((k, v) => MapEntry('$k', '$v')) : const {},
     play: _s(j['play']),
     ios: _s(j['ios']),
+    icona: _s(j['icona']),
   );
 }
 
